@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>星购 · 星空购物 - 登录</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --cyan: #7dd3fc;
+    --violet: #a78bfa;
+    --pink: #f9a8d4;
+    --gold: #fde68a;
+    --deep: #070a1c;
+  }
+
+  html { height: 100%; }
+
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    color: #e2e8f0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: #070a1c;
+    min-height: 100%;
+  }
+
+  /* 自定义滚动条，贴合星空风 */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: rgba(10, 14, 38, .6); }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #7dd3fc, #a78bfa, #f9a8d4);
+    border-radius: 8px;
+  }
+
+  /* ---------- 夜空底层背景 ---------- */
+  .sky {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(120, 100, 255, .28), transparent 60%),
+      radial-gradient(900px 600px at 10% 105%, rgba(56, 189, 248, .18), transparent 60%),
+      radial-gradient(700px 500px at 50% 50%, rgba(232, 121, 249, .10), transparent 65%),
+      linear-gradient(180deg, #0b1029 0%, #151b43 42%, #241b50 68%, #0c0f2c 100%);
+  }
+
+  /* 缓慢旋转的银河光带 —— 让远景持续流动 */
+  .galaxy {
+    position: fixed;
+    z-index: 0;
+    top: 50%; left: 50%;
+    width: 220vmax; height: 220vmax;
+    margin: -110vmax 0 0 -110vmax;
+    pointer-events: none;
+    opacity: .38;
+    background: conic-gradient(from 0deg,
+      transparent 0deg,
+      rgba(124, 92, 255, .16) 40deg,
+      rgba(56, 189, 248, .10) 90deg,
+      transparent 150deg,
+      rgba(236, 72, 153, .10) 230deg,
+      rgba(167, 139, 250, .14) 300deg,
+      transparent 360deg);
+    animation: galaxySpin 120s linear infinite;
+  }
+  @keyframes galaxySpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  /* 星云微光层 —— 缓慢漂浮呼吸 */
+  .nebula {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(600px 400px at 18% 28%, rgba(99, 102, 241, .18), transparent 70%),
+      radial-gradient(500px 380px at 78% 62%, rgba(14, 165, 233, .15), transparent 70%);
+    animation: nebulaFloat 24s ease-in-out infinite alternate;
+  }
+  @keyframes nebulaFloat {
+    from { transform: translate3d(-3%, -2%, 0) scale(1);    opacity: .85; }
+    to   { transform: translate3d(4%, 3%, 0) scale(1.12);   opacity: 1; }
+  }
+  .nebula.b {
+    animation: nebulaFloatB 32s ease-in-out infinite alternate;
+    background:
+      radial-gradient(520px 360px at 62% 18%, rgba(236, 72, 153, .13), transparent 70%),
+      radial-gradient(460px 340px at 25% 78%, rgba(45, 212, 191, .10), transparent 70%);
+  }
+  @keyframes nebulaFloatB {
+    from { transform: translate3d(4%, 3%, 0) scale(1.1);  opacity: .8; }
+    to   { transform: translate3d(-4%, -4%, 0) scale(1);  opacity: 1; }
+  }
+
+  /* 星星粒子画布 */
+  #starfield {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* ---------- 月亮 ---------- */
+  .moon {
+    position: fixed;
+    z-index: 1;
+    top: 7%;
+    right: 9%;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fdf8e8, #f6e7b2 45%, #e9cf8f 100%);
+    box-shadow:
+      0 0 60px 20px rgba(253, 230, 138, .35),
+      0 0 120px 45px rgba(253, 230, 138, .15),
+      inset -18px -14px 40px rgba(190, 160, 95, .45);
+    animation: moonGlow 6s ease-in-out infinite alternate, moonDrift 40s ease-in-out infinite alternate;
+  }
+  @keyframes moonGlow {
+    from { box-shadow: 0 0 50px 16px rgba(253,230,138,.3), 0 0 110px 40px rgba(253,230,138,.12), inset -18px -14px 40px rgba(190,160,95,.45); }
+    to   { box-shadow: 0 0 70px 26px rgba(253,230,138,.45), 0 0 140px 55px rgba(253,230,138,.2), inset -18px -14px 40px rgba(190,160,95,.45); }
+  }
+  @keyframes moonDrift {
+    from { transform: translateY(0); }
+    to   { transform: translateY(16px); }
+  }
+  .moon-crater {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, rgba(196, 166, 100, .35), rgba(196,166,100,.12) 70%, transparent);
+  }
+
+  /* ---------- 布局 ---------- */
+  .wrap {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    gap: 46px;
+  }
+
+  /* 玻璃拟态登录卡片 */
+  .card {
+    width: 100%;
+    max-width: 420px;
+    padding: 42px 38px 34px;
+    border-radius: 26px;
+    position: relative;
+    background: linear-gradient(160deg, rgba(30, 35, 80, .55), rgba(18, 21, 52, .45));
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(148, 170, 255, .22);
+    box-shadow:
+      0 30px 80px rgba(0, 0, 0, .55),
+      inset 0 1px 0 rgba(255,255,255,.15),
+      0 0 60px rgba(120, 100, 255, .10);
+    animation: cardIn .9s cubic-bezier(.2, .8, .2, 1) both;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(26px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    top: -1px; left: 12%;
+    width: 76%; height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), var(--violet), var(--pink), transparent);
+    opacity: .9;
+  }
+
+  /* ---------- 品牌区 ---------- */
+  .brand { text-align: center; margin-bottom: 8px; }
+
+  .logo { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .logo-ic {
+    width: 46px; height: 46px;
+    display: grid; place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #6ee7f9, #8b5cf6 55%, #ec4899);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, .45);
+    font-size: 24px;
+    animation: spinSlow 12s linear infinite;
+  }
+  @keyframes spinSlow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .brand-text {
+    font-size: 30px;
+    letter-spacing: 6px;
+    font-weight: 700;
+    background: linear-gradient(92deg, var(--cyan) 0%, var(--violet) 45%, var(--pink) 80%, var(--gold) 110%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 14px rgba(167, 139, 250, .55));
+    font-family: "STKaiti", "KaiTi", serif;
+  }
+  .slogan {
+    margin-top: 10px;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: transparent;
+    background: linear-gradient(90deg, #a5b4fc, #fbcfe8, #a5b4fc);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: sloganFlow 6s linear infinite;
+  }
+  @keyframes sloganFlow {
+    from { background-position: 0% 0; }
+    to   { background-position: 200% 0; }
+  }
+  .stars-divider {
+    text-align: center;
+    margin: 4px 0 22px;
+    font-size: 12px;
+    letter-spacing: 12px;
+    color: rgba(201, 182, 255, .6);
+    text-shadow: 0 0 12px rgba(167, 139, 250, .8);
+  }
+
+  /* ---------- 表单 ---------- */
+  .field { margin-bottom: 18px; position: relative; }
+
+  .field label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 7px;
+    letter-spacing: 1px;
+    color: transparent;
+    background: linear-gradient(90deg, #c4b5fd, #e9d5ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .input-box { position: relative; display: flex; align-items: center; }
+  .input-ic { position: absolute; left: 14px; font-size: 16px; color: #9aa4e8; }
+  .input-box input {
+    width: 100%;
+    padding: 13px 14px 13px 44px;
+    font-size: 15px;
+    color: #f1f5ff;
+    letter-spacing: 1px;
+    background: rgba(13, 17, 44, .5);
+    border: 1px solid rgba(140, 160, 255, .22);
+    border-radius: 13px;
+    outline: none;
+    transition: all .3s;
+    font-family: inherit;
+  }
+  .input-box input::placeholder { color: rgba(178, 190, 230, .45); }
+  .input-box input:focus {
+    border-color: rgba(167, 139, 250, .8);
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, .18), 0 0 22px rgba(139, 92, 246, .3);
+    background: rgba(16, 20, 50, .65);
+  }
+  .toggle-psw {
+    position: absolute; right: 12px;
+    background: none; border: none; cursor: pointer;
+    color: #9aa4e8; font-size: 16px;
+  }
+  .toggle-psw:hover { color: var(--cyan); }
+
+  .row-between {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: 2px 0 22px; font-size: 12.5px;
+  }
+  .remember { display: flex; align-items: center; gap: 6px; color: #b9c3f2; cursor: pointer; user-select: none; }
+  .remember input { accent-color: #8b5cf6; width: 14px; height: 14px; cursor: pointer; }
+  .forgot {
+    background: none; border: none; cursor: pointer;
+    color: transparent;
+    background: linear-gradient(90deg, #93c5fd, #a78bfa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    font-size: 12.5px; letter-spacing: 1px;
+  }
+  .forgot:hover { text-shadow: 0 0 12px rgba(147,197,253,.7); }
+
+  /* 登录按钮 */
+  .btn-login {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 8px;
+    color: #fffdf5;
+    background: linear-gradient(92deg, #38bdf8 0%, #8b5cf6 48%, #ec4899 100%);
+    background-size: 180% 100%;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, .4);
+    transition: all .3s;
+    font-family: inherit;
+  }
+  .btn-login:hover {
+    background-position: 100% 0;
+    box-shadow: 0 12px 36px rgba(139, 92, 246, .6), 0 0 30px rgba(236, 72, 153, .35);
+    transform: translateY(-2px);
+  }
+  .btn-login:active { transform: translateY(0); }
+  .btn-login .twinkle { display: inline-block; color: var(--gold); text-shadow: 0 0 8px var(--gold); }
+
+  /* 第三方登录 */
+  .third { margin-top: 26px; text-align: center; }
+  .third-label {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 12px; letter-spacing: 2px;
+    color: rgba(176, 188, 235, .55);
+  }
+  .third-label::before, .third-label::after {
+    content: ""; flex: 1; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(148,170,255,.35));
+  }
+  .third-label::after { background: linear-gradient(90deg, rgba(148,170,255,.35), transparent); }
+  .third-icons { margin-top: 16px; display: flex; justify-content: center; gap: 26px; }
+  .third-icons button {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(148,170,255,.28);
+    cursor: pointer;
+    background: rgba(20, 24, 58, .55);
+    color: #c7d2fe; font-size: 17px;
+    transition: all .3s;
+    display: grid; place-items: center;
+  }
+  .third-icons button:hover {
+    color: var(--cyan);
+    border-color: var(--cyan);
+    box-shadow: 0 0 20px rgba(56, 189, 248, .4);
+    transform: translateY(-3px);
+  }
+
+  .footer-signup {
+    margin-top: 24px; text-align: center;
+    font-size: 13px; color: #b9c3f2; letter-spacing: 1px;
+  }
+  .footer-signup a {
+    color: transparent;
+    background: linear-gradient(90deg, var(--cyan), var(--pink));
+    -webkit-background-clip: text; background-clip: text;
+    text-decoration: none; font-weight: 600;
+  }
+  .footer-signup a:hover { text-shadow: 0 0 12px rgba(249,168,212,.7); }
+
+  /* ================= 网站用途介绍区 ================= */
+  .usage {
+    width: 100%;
+    max-width: 880px;
+    padding: 34px 30px 28px;
+    border-radius: 26px;
+    position: relative;
+    text-align: center;
+    background: linear-gradient(160deg, rgba(26, 30, 72, .45), rgba(16, 19, 48, .38));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(148, 170, 255, .18);
+    box-shadow: 0 24px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.1);
+    animation: usageIn 1s .25s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes usageIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .usage::before {
+    content: "";
+    position: absolute;
+    bottom: -1px; left: 20%;
+    width: 60%; height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), var(--pink), var(--cyan), transparent);
+    opacity: .8;
+  }
+
+  .usage-title {
+    font-size: 20px;
+    letter-spacing: 5px;
+    font-weight: 700;
+    color: transparent;
+    background: linear-gradient(92deg, var(--cyan), var(--violet) 50%, var(--pink));
+    -webkit-background-clip: text; background-clip: text;
+    filter: drop-shadow(0 0 12px rgba(167,139,250,.5));
+  }
+  .usage-sub {
+    margin-top: 8px;
+    font-size: 12.5px;
+    letter-spacing: 2px;
+    color: rgba(196, 206, 255, .6);
+  }
+
+  .usage-grid {
+    margin-top: 26px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  .usage-item {
+    padding: 20px 14px;
+    border-radius: 18px;
+    background: rgba(14, 18, 46, .5);
+    border: 1px solid rgba(148,170,255,.15);
+    transition: all .35s;
+    cursor: default;
+  }
+  .usage-item:hover {
+    transform: translateY(-6px);
+    border-color: rgba(167,139,250,.55);
+    box-shadow: 0 14px 32px rgba(88, 60, 200, .35), 0 0 24px rgba(139,92,246,.25);
+    background: rgba(22, 26, 62, .62);
+  }
+  .u-ic {
+    font-size: 26px;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 10px rgba(167,139,250,.6));
+  }
+  .u-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: transparent;
+    background: linear-gradient(90deg, var(--gold), var(--pink));
+    -webkit-background-clip: text; background-clip: text;
+    margin-bottom: 8px;
+  }
+  .u-desc {
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: rgba(198, 208, 246, .78);
+    letter-spacing: .5px;
+  }
+
+  .usage-about {
+    margin-top: 26px;
+    padding-top: 20px;
+    border-top: 1px dashed rgba(148,170,255,.2);
+    font-size: 12.5px;
+    line-height: 1.9;
+    color: rgba(190, 202, 244, .7);
+    letter-spacing: 1px;
+  }
+  .usage-about b {
+    color: transparent;
+    background: linear-gradient(90deg, var(--cyan), var(--violet));
+    -webkit-background-clip: text; background-clip: text;
+    font-weight: 600;
+  }
+  .usage-about .tag {
+    display: inline-block;
+    margin: 8px 5px 0;
+    padding: 5px 13px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    color: #dbe6ff;
+    background: rgba(90, 80, 200, .22);
+    border: 1px solid rgba(148,170,255,.25);
+  }
+
+  /* 登录成功提示 */
+  .toast {
+    position: fixed;
+    left: 50%; top: 8%;
+    transform: translate(-50%, -16px);
+    z-index: 99;
+    padding: 12px 26px;
+    border-radius: 40px;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: #fff;
+    background: linear-gradient(90deg, #38bdf8, #8b5cf6, #ec4899);
+    box-shadow: 0 12px 40px rgba(139,92,246,.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: all .45s cubic-bezier(.2,.8,.2,1);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* 返回顶部星标 */
+  .back-top {
+    position: fixed;
+    right: 22px; bottom: 22px;
+    z-index: 50;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(148,170,255,.3);
+    background: rgba(20, 24, 58, .7);
+    color: var(--cyan);
+    font-size: 18px;
+    cursor: pointer;
+    display: grid; place-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .3s;
+    backdrop-filter: blur(8px);
+  }
+  .back-top.show { opacity: 1; pointer-events: auto; }
+  .back-top:hover {
+    box-shadow: 0 0 22px rgba(56,189,248,.5);
+    transform: translateY(-3px);
+  }
+
+  @media (max-width: 860px) {
+    .usage-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .card { padding: 32px 24px 26px; }
+    .moon { width: 80px; height: 80px; top: 4%; right: 6%; }
+    .wrap { padding: 32px 16px; gap: 32px; }
+    .usage { padding: 26px 18px 22px; }
+    .usage-grid { grid-template-columns: 1fr; gap: 14px; }
+    .usage-title { font-size: 17px; letter-spacing: 3px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 动态星空背景层 -->
+  <div class="sky"></div>
+  <div class="galaxy"></div>
+  <div class="nebula"></div>
+  <div class="nebula b"></div>
+  <canvas id="starfield"></canvas>
+
+  <!-- 月亮 -->
+  <div class="moon">
+    <div class="moon-crater" style="width:26px;height:26px;top:16px;left:20px;"></div>
+    <div class="moon-crater" style="width:16px;height:16px;top:52px;left:56px;"></div>
+    <div class="moon-crater" style="width:11px;height:11px;top:30px;left:66px;"></div>
+  </div>
+
+  <!-- 主容器 -->
+  <div class="wrap">
+
+    <!-- 登录卡片 -->
+    <div class="card">
+      <div class="brand">
+        <div class="logo">
+          <div class="logo-ic">✦</div>
+        </div>
+        <div class="brand-text">星购商城</div>
+        <div class="slogan">STAR SHOPPING · 每一次购物都是一场星辰之旅</div>
+      </div>
+      <div class="stars-divider">✦ ✧ ✦</div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label>✦ 账号</label>
+          <div class="input-box">
+            <span class="input-ic">✉</span>
+            <input type="text" id="account" placeholder="手机号 / 邮箱" autocomplete="username" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>✦ 密码</label>
+          <div class="input-box">
+            <span class="input-ic">🔒</span>
+            <input type="password" id="psw" placeholder="请输入密码" autocomplete="current-password" />
+            <button type="button" class="toggle-psw" id="togglePsw" title="显示/隐藏密码">👁</button>
+          </div>
+        </div>
+
+        <div class="row-between">
+          <label class="remember">
+            <input type="checkbox" checked />
+            <span>✦ 记住我</span>
+          </label>
+          <button type="button" class="forgot" onclick="forgotTip()">忘记密码?</button>
+        </div>
+
+        <button type="submit" class="btn-login" id="loginBtn"><span class="twinkle">✦</span> 登 录 <span class="twinkle">✦</span></button>
+      </form>
+
+      <div class="third">
+        <div class="third-label">其他登录方式</div>
+        <div class="third-icons">
+          <button type="button" title="微信登录">💬</button>
+          <button type="button" title="QQ 登录">🐧</button>
+          <button type="button" title="苹果登录"></button>
+        </div>
+      </div>
+
+      <div class="footer-signup">
+        还没有账号？<a href="#" onclick="event.preventDefault();regTip()">立即注册</a>
+      </div>
+    </div>
+
+    <!-- 网站用途介绍 -->
+    <section class="usage">
+      <div class="usage-title">✦ 网站用途简介 ✦</div>
+      <div class="usage-sub">星购商城 —— 集精选购物、限时优惠、会员权益与极速配送于一体的一站式星空购物平台</div>
+
+      <div class="usage-grid">
+        <div class="usage-item">
+          <div class="u-ic">🛍️</div>
+          <div class="u-title">精选好物</div>
+          <div class="u-desc">全球甄选百万商品，品质严选，品类齐全，让您一站购齐所需</div>
+        </div>
+        <div class="usage-item">
+          <div class="u-ic">⚡</div>
+          <div class="u-title">限时秒杀</div>
+          <div class="u-desc">每日星空专场限时开抢，超值折扣、优惠券叠加，省钱看得见</div>
+        </div>
+        <div class="usage-item">
+          <div class="u-ic">👑</div>
+          <div class="u-title">会员权益</div>
+          <div class="u-desc">星等级会员成长体系，专享折扣、积分返现与生日专属礼遇</div>
+        </div>
+        <div class="usage-item">
+          <div class="u-ic">🚚</div>
+          <div class="u-title">极速配送</div>
+          <div class="u-desc">全国仓配网络覆盖，次日送达，物流状态全程实时可追踪</div>
+        </div>
+      </div>
+
+      <div class="usage-about">
+        <b>关于本站：</b>星购商城致力于为用户提供<b>高性价比、正品保障、服务贴心</b>的在线购物体验。<br />
+        支持商品浏览与搜索、购物车管理、在线支付、订单追踪、售后服务与收藏清单等全流程功能，<br />
+        让您足不出户，便能穿越星海，轻松选购心仪好物。
+        <div>
+          <span class="tag">正品保障</span>
+          <span class="tag">七天无理由退换</span>
+          <span class="tag">在线支付</span>
+          <span class="tag">售后无忧</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 提示 toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- 返回顶部 -->
+  <button class="back-top" id="backTop" title="回到星空之巅">✦</button>
+
+  <script>
+    /* ================= 星空粒子系统（多层视差 + 漂移 + 流星） ================= */
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let W, H, DPR;
+    let stars = [];
+    let bright = [];      // 亮星，用于星座连线
+    let shooting = null;
+    const COLORS = ['#ffffff', '#cfe6ff', '#fff3c4', '#e5d9ff', '#bff3ff', '#ffd9ec'];
+
+    function resize() {
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W = canvas.width = innerWidth * DPR;
+      H = canvas.height = innerHeight * DPR;
+      canvas.style.width = innerWidth + 'px';
+      canvas.style.height = innerHeight + 'px';
+      buildStars();
+    }
+
+    function buildStars() {
+      const count = Math.floor((innerWidth * innerHeight) / 2400);
+      stars = [];
+      for (let i = 0; i < count; i++) {
+        const lv = Math.random();
+        let layer, r, drift;
+        if (lv < .62)      { layer = 0; r = Math.random() * .5 + .25; drift = Math.random() * .06 + .02; }
+        else if (lv < .92) { layer = 1; r = Math.random() * .6 + .7;  drift = Math.random() * .12 + .07; }
+        else               { layer = 2; r = Math.random() * .8 + 1.3; drift = Math.random() * .2 + .16; }
+
+        stars.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          r: r * DPR,
+          layer,
+          drift: drift * DPR,
+          alpha: layer === 0 ? .45 : layer === 1 ? .7 : .95,
+          tw: Math.random() * Math.PI * 2,
+          speed: Math.random() * .9 + .3,
+          color: COLORS[(Math.random() * COLORS.length) | 0]
+        });
+      }
+      // 取最亮的若干颗用于星群连线
+      bright = stars.filter(s => s.layer === 2).slice(0, 26);
+    }
+
+    function spawnShooting() {
+      shooting = {
+        x: W * (0.1 + Math.random() * 0.75),
+        y: H * (0.03 + Math.random() * 0.28),
+        vx: (3.2 + Math.random() * 2.4) * DPR,
+        vy: (1.9 + Math.random() * 1.8) * DPR,
+        life: 1
+      };
+    }
+
+    let t = 0;
+    function draw() {
+      t += .016;
+      ctx.clearRect(0, 0, W, H);
+
+      /* 星群连线：随时间缓慢移动重组 */
+      ctx.strokeStyle = 'rgba(167, 139, 250, .16)';
+      ctx.lineWidth = .8 * DPR;
+      for (let i = 0; i < bright.length; i++) {
+        const a = bright[i];
+        for (let j = i + 1; j < bright.length; j++) {
+          const b = bright[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < 42000 * DPR * DPR) {
+            const d = Math.sqrt(d2);
+            ctx.globalAlpha = (1 - d / (205 * DPR)) * .3;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      /* 星星：横向漂移 + 呼吸闪烁 */
+      for (const s of stars) {
+        s.x -= s.drift;
+        if (s.x < -8) { s.x = W + 8; s.y = Math.random() * H; }
+
+        const a = (Math.sin(t * s.speed + s.tw) + 1) / 2;
+        ctx.globalAlpha = s.alpha * (.35 + a * .65);
+        ctx.fillStyle = s.color;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r + a * .7, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (s.layer >= 1 && a > .55) {
+          ctx.globalAlpha = a * .22;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r * (1.6 + a * 1.8), 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      /* 流星 */
+      if (!shooting && Math.random() < .006) spawnShooting();
+      if (shooting) {
+        shooting.x += shooting.vx;
+        shooting.y += shooting.vy;
+        shooting.life -= .014;
+        if (shooting.life <= 0 || shooting.x > W + 400 || shooting.y > H + 400) {
+          shooting = null;
+        } else {
+          const hx = shooting.x, hy = shooting.y;
+          const tx = hx - shooting.vx * 5, ty = hy - shooting.vy * 5;
+          ctx.globalAlpha = .95;
+          ctx.strokeStyle = 'rgba(253, 230, 138, .9)';
+          ctx.lineWidth = 2.2 * DPR;
+          ctx.lineCap = 'round';
+          const g = ctx.createLinearGradient(hx, hy, tx, ty);
+          g.addColorStop(0, 'rgba(255, 250, 232, .95)');
+          g.addColorStop(.35, 'rgba(253, 230, 138, .6)');
+          g.addColorStop(1, 'rgba(253, 230, 138, 0)');
+          ctx.strokeStyle = g;
+          ctx.beginPath();
+          ctx.moveTo(hx, hy);
+          ctx.lineTo(tx, ty);
+          ctx.stroke();
+
+          ctx.globalAlpha = .9;
+          ctx.fillStyle = '#fffae8';
+          ctx.beginPath();
+          ctx.arc(hx, hy, 2.4 * DPR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = .35;
+          ctx.beginPath();
+          ctx.arc(hx, hy, 7 * DPR, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    requestAnimationFrame(draw);
+
+    /* ================= 表单交互 ================= */
+    const psw = document.getElementById('psw');
+    const togglePsw = document.getElementById('togglePsw');
+    togglePsw.addEventListener('click', () => {
+      psw.type = psw.type === 'password' ? 'text' : 'password';
+      togglePsw.textContent = psw.type === 'password' ? '👁' : '🙈';
+    });
+
+    const toast = document.getElementById('toast');
+    let toastTimer;
+    function showToast(msg) {
+      toast.innerHTML = '✦ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const acc = document.getElementById('account').value.trim();
+      if (!acc) { showToast('请先输入账号'); return; }
+      if (!psw.value) { showToast('请先输入密码'); return; }
+      showToast('登录成功，欢迎回到星购商城');
+    });
+
+    function forgotTip() { showToast('正在为您开启星光找回通道...'); }
+    function regTip() { showToast('注册功能已为您点亮，敬请期待'); }
+
+    /* 返回顶部按钮 */
+    const backTop = document.getElementById('backTop');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 220) backTop.classList.add('show');
+      else backTop.classList.remove('show');
+    });
+    backTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>
