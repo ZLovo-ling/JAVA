@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>限时秒杀 · 星河商城</title>
+<link rel="stylesheet" href="starshop-theme.css">
+</head>
+<body>
+<div class="sky"></div><div class="galaxy"></div>
+<div class="nebula"></div><div class="nebula b"></div>
+<canvas id="starfield"></canvas><div class="moon"></div>
+
+<div id="topnav"></div>
+
+<div class="app">
+  <main class="container">
+    <div class="seckill-hero">
+      <div>
+        <h2>⚡ 限时秒杀</h2>
+        <div class="sub">全场秒杀低价，先到先得，售完即止</div>
+      </div>
+      <div class="countdown" id="countdown">
+        <div class="cd-box"><div class="cd-num" id="cdH">00</div><div class="cd-lab">时</div></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-box"><div class="cd-num" id="cdM">00</div><div class="cd-lab">分</div></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-box"><div class="cd-num" id="cdS">00</div><div class="cd-lab">秒</div></div>
+      </div>
+    </div>
+
+    <div class="goods-grid" id="seckillGrid"></div>
+  </main>
+  <footer class="footer">星河商城 · 让每一颗星都值得拥有 ✦</footer>
+</div>
+
+<script src="starshop-common.js"></script>
+<script>
+let END_TS = 0;
+
+function tickCountdown() {
+  const el = document.getElementById('countdown');
+  if (!END_TS) return;
+  let diff = Math.max(0, Math.floor((END_TS - Date.now()) / 1000));
+  const h = String(Math.floor(diff / 3600)).padStart(2, '0');
+  const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+  const s = String(diff % 60).padStart(2, '0');
+  document.getElementById('cdH').textContent = h;
+  document.getElementById('cdM').textContent = m;
+  document.getElementById('cdS').textContent = s;
+  if (diff <= 0) el.querySelector('.sub') && (el.querySelector('.sub').textContent = '本场已结束');
+}
+
+function goDetail(id) { location.href = 'starshop-detail.html?id=' + id; }
+
+(async function init() {
+  initStarfield();
+  renderNav('seckill');
+  try {
+    const list = await getJson('/api/goods/seckill');
+    if (!list || !list.length) {
+      document.getElementById('seckillGrid').innerHTML = '<div class="empty"><div class="em">⏰</div>暂无秒杀商品</div>';
+      return;
+    }
+    // 取最晚的秒杀结束时间作为倒计时终点
+    END_TS = list.map(p => p.seckillEnd ? new Date(p.seckillEnd.replace(' ', 'T')).getTime() : 0)
+                 .filter(t => t).sort((a, b) => b - a)[0] || 0;
+    document.getElementById('seckillGrid').innerHTML = list.map(p => {
+      const off = p.price > 0 ? Math.round((1 - p.seckillPrice / p.price) * 100) : 0;
+      return `
+      <div class="goods-card" onclick="goDetail(${p.id})">
+        <span class="badge-seckill">秒杀 -${off}%</span>
+        <div class="goods-icon">${p.icon || '🛍️'}</div>
+        <div class="goods-name">${p.name}</div>
+        <div class="goods-cat">${p.categoryName || ''}</div>
+        <div class="goods-price"><span class="cur">¥</span>${p.seckillPrice}<span class="goods-origin">¥${p.price}</span></div>
+      </div>`;
+    }).join('');
+    tickCountdown();
+    setInterval(tickCountdown, 1000);
+  } catch (e) {
+    document.getElementById('seckillGrid').innerHTML = '<div class="empty">加载失败：' + e.message + '</div>';
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+mysql: [Warning] Using a password on the command line interface can be insecure.
+ERROR 1064 (42000) at line 218: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''坚果星空礼盒',   (SELECT id FROM category WHERE name='坚果零食'), '?'' at line 1
