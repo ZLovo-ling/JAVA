@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>星购 · 星空购物 - 登录</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --cyan: #7dd3fc;
+    --violet: #a78bfa;
+    --pink: #f9a8d4;
+    --gold: #fde68a;
+    --deep: #070a1c;
+  }
+
+  html { height: 100%; }
+
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    color: #e2e8f0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: #070a1c;
+    min-height: 100%;
+  }
+
+  /* 自定义滚动条，贴合星空风 */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: rgba(10, 14, 38, .6); }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #7dd3fc, #a78bfa, #f9a8d4);
+    border-radius: 8px;
+  }
+
+  /* ---------- 夜空底层背景 ---------- */
+  .sky {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(120, 100, 255, .28), transparent 60%),
+      radial-gradient(900px 600px at 10% 105%, rgba(56, 189, 248, .18), transparent 60%),
+      radial-gradient(700px 500px at 50% 50%, rgba(232, 121, 249, .10), transparent 65%),
+      linear-gradient(180deg, #0b1029 0%, #151b43 42%, #241b50 68%, #0c0f2c 100%);
+  }
+
+  /* 缓慢旋转的银河光带 —— 让远景持续流动 */
+  .galaxy {
+    position: fixed;
+    z-index: 0;
+    top: 50%; left: 50%;
+    width: 220vmax; height: 220vmax;
+    margin: -110vmax 0 0 -110vmax;
+    pointer-events: none;
+    opacity: .38;
+    background: conic-gradient(from 0deg,
+      transparent 0deg,
+      rgba(124, 92, 255, .16) 40deg,
+      rgba(56, 189, 248, .10) 90deg,
+      transparent 150deg,
+      rgba(236, 72, 153, .10) 230deg,
+      rgba(167, 139, 250, .14) 300deg,
+      transparent 360deg);
+    animation: galaxySpin 120s linear infinite;
+  }
+  @keyframes galaxySpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  /* 星云微光层 —— 缓慢漂浮呼吸 */
+  .nebula {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(600px 400px at 18% 28%, rgba(99, 102, 241, .18), transparent 70%),
+      radial-gradient(500px 380px at 78% 62%, rgba(14, 165, 233, .15), transparent 70%);
+    animation: nebulaFloat 24s ease-in-out infinite alternate;
+  }
+  @keyframes nebulaFloat {
+    from { transform: translate3d(-3%, -2%, 0) scale(1);    opacity: .85; }
+    to   { transform: translate3d(4%, 3%, 0) scale(1.12);   opacity: 1; }
+  }
+  .nebula.b {
+    animation: nebulaFloatB 32s ease-in-out infinite alternate;
+    background:
+      radial-gradient(520px 360px at 62% 18%, rgba(236, 72, 153, .13), transparent 70%),
+      radial-gradient(460px 340px at 25% 78%, rgba(45, 212, 191, .10), transparent 70%);
+  }
+  @keyframes nebulaFloatB {
+    from { transform: translate3d(4%, 3%, 0) scale(1.1);  opacity: .8; }
+    to   { transform: translate3d(-4%, -4%, 0) scale(1);  opacity: 1; }
+  }
+
+  /* 星星粒子画布 */
+  #starfield {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* ---------- 月亮 ---------- */
+  .moon {
+    position: fixed;
+    z-index: 1;
+    top: 7%;
+    right: 9%;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fdf8e8, #f6e7b2 45%, #e9cf8f 100%);
+    box-shadow:
+      0 0 60px 20px rgba(253, 230, 138, .35),
+      0 0 120px 45px rgba(253, 230, 138, .15),
+      inset -18px -14px 40px rgba(190, 160, 95, .45);
+    animation: moonGlow 6s ease-in-out infinite alternate, moonDrift 40s ease-in-out infinite alternate;
+  }
+  @keyframes moonGlow {
+    from { box-shadow: 0 0 50px 16px rgba(253,230,138,.3), 0 0 110px 40px rgba(253,230,138,.12), inset -18px -14px 40px rgba(190,160,95,.45); }
+    to   { box-shadow: 0 0 70px 26px rgba(253,230,138,.45), 0 0 140px 55px rgba(253,230,138,.2), inset -18px -14px 40px rgba(190,160,95,.45); }
+  }
+  @keyframes moonDrift {
+    from { transform: translateY(0); }
+    to   { transform: translateY(16px); }
+  }
+  .moon-crater {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, rgba(196, 166, 100, .35), rgba(196,166,100,.12) 70%, transparent);
+  }
+
+  /* ---------- 布局 ---------- */
+  .wrap {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    gap: 46px;
+  }
+
+  /* 玻璃拟态登录卡片 */
+  .card {
+    width: 100%;
+    max-width: 420px;
+    padding: 42px 38px 34px;
+    border-radius: 26px;
+    position: relative;
+    background: linear-gradient(160deg, rgba(30, 35, 80, .55), rgba(18, 21, 52, .45));
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(148, 170, 255, .22);
+    box-shadow:
+      0 30px 80px rgba(0, 0, 0, .55),
+      inset 0 1px 0 rgba(255,255,255,.15),
+      0 0 60px rgba(120, 100, 255, .10);
+    animation: cardIn .9s cubic-bezier(.2, .8, .2, 1) both;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(26px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    top: -1px; left: 12%;
+    width: 76%; height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), var(--violet), var(--pink), transparent);
+    opacity: .9;
+  }
+
+  /* ---------- 品牌区 ---------- */
+  .brand { text-align: center; margin-bottom: 8px; }
+
+  .logo { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .logo-ic {
+    width: 46px; height: 46px;
+    display: grid; place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #6ee7f9, #8b5cf6 55%, #ec4899);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, .45);
+    font-size: 24px;
+    animation: spinSlow 12s linear infinite;
+  }
+  @keyframes spinSlow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .brand-text {
+    font-size: 30px;
+    letter-spacing: 6px;
+    font-weight: 700;
+    background: linear-gradient(92deg, var(--cyan) 0%, var(--violet) 45%, var(--pink) 80%, var(--gold) 110%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 14px rgba(167, 139, 250, .55));
+    font-family: "STKaiti", "KaiTi", serif;
+  }
+  .slogan {
+    margin-top: 10px;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: transparent;
+    background: linear-gradient(90deg, #a5b4fc, #fbcfe8, #a5b4fc);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: sloganFlow 6s linear infinite;
+  }
+  @keyframes sloganFlow {
+    from { background-position: 0% 0; }
+    to   { background-position: 200% 0; }
+  }
+  .stars-divider {
+    text-align: center;
+    margin: 4px 0 22px;
+    font-size: 12px;
+    letter-spacing: 12px;
+    color: rgba(201, 182, 255, .6);
+    text-shadow: 0 0 12px rgba(167, 139, 250, .8);
+  }
+
+  /* ---------- 表单 ---------- */
+  .field { margin-bottom: 18px; position: relative; }
+
+  .field label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 7px;
+    letter-spacing: 1px;
+    color: transparent;
+    background: linear-gradient(90deg, #c4b5fd, #e9d5ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .input-box { position: relative; display: flex; align-items: center; }
+  .input-ic { position: absolute; left: 14px; font-size: 16px; color: #9aa4e8; }
+  .input-box input {
+    width: 100%;
+    padding: 13px 14px 13px 44px;
+    font-size: 15px;
+    color: #f1f5ff;
+    letter-spacing: 1px;
+    background: rgba(13, 17, 44, .5);
+    border: 1px solid rgba(140, 160, 255, .22);
+    border-radius: 13px;
+    outline: none;
+    transition: all .3s;
+    font-family: inherit;
+  }
+  .input-box input::placeholder { color: rgba(178, 190, 230, .45); }
+  .input-box input:focus {
+    border-color: rgba(167, 139, 250, .8);
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, .18), 0 0 22px rgba(139, 92, 246, .3);
+    background: rgba(16, 20, 50, .65);
+  }
+  .toggle-psw {
+    position: absolute; right: 12px;
+    background: none; border: none; cursor: pointer;
+    color: #9aa4e8; font-size: 16px;
+  }
+  .toggle-psw:hover { color: var(--cyan); }
+
+  .row-between {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: 2px 0 22px; font-size: 12.5px;
+  }
+  .remember { display: flex; align-items: center; gap: 6px; color: #b9c3f2; cursor: pointer; user-select: none; }
+  .remember input { accent-color: #8b5cf6; width: 14px; height: 14px; cursor: pointer; }
+  .forgot {
+    background: none; border: none; cursor: pointer;
+    color: transparent;
+    background: linear-gradient(90deg, #93c5fd, #a78bfa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    font-size: 12.5px; letter-spacing: 1px;
+  }
+  .forgot:hover { text-shadow: 0 0 12px rgba(147,197,253,.7); }
+
+  /* 登录按钮 */
+  .btn-login {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 8px;
+    color: #fffdf5;
+    background: linear-gradient(92deg, #38bdf8 0%, #8b5cf6 48%, #ec4899 100%);
+    background-size: 180% 100%;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, .4);
+    transition: all .3s;
+    font-family: inherit;
+  }
+  .btn-login:hover {
+    background-position: 100% 0;
+    box-shadow: 0 12px 36px rgba(139, 92, 246, .6), 0 0 30px rgba(236, 72, 153, .35);
+    transform: translateY(-2px);
+  }
+  .btn-login:active { transform: translateY(0); }
+  .btn-login .twinkle { display: inline-block; color: var(--gold); text-shadow: 0 0 8px var(--gold); }
+
+  /* 第三方登录 */
+  .third { margin-top: 26px; text-align: center; }
+  .third-label {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 12px; letter-spacing: 2px;
+    color: rgba(176, 188, 235, .55);
+  }
+  .third-label::before, .third-label::after {
+    content: ""; flex: 1; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(148,170,255,.35));
+  }
+  .third-label::after { background: linear-gradient(90deg, rgba(148,170,255,.35), transparent); }
+  .third-icons { margin-top: 16px; display: flex; justify-content: center; gap: 26px; }
+  .third-icons button {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(148,170,255,.28);
+    cursor: pointer;
+    background: rgba(20, 24, 58, .55);
+    color: #c7d2fe; font-size: 17px;
+    transition: all .3s;
+    display: grid; place-items: center;
+  }
+  .third-icons button:hover {
+    color: var(--cyan);
+    border-color: var(--cyan);
+    box-shadow: 0 0 20px rgba(56, 189, 248, .4);
+    transform: translateY(-3px);
+  }
+
+  .footer-signup {
+    margin-top: 24px; text-align: center;
+    font-size: 13px; color: #b9c3f2; letter-spacing: 1px;
+  }
+  .footer-signup a {
+    color: transparent;
+    background: linear-gradient(90deg, var(--cyan), var(--pink));
+    -webkit-background-clip: text; background-clip: text;
+    text-decoration: none; font-weight: 600;
+  }
+  .footer-signup a:hover { text-shadow: 0 0 12px rgba(249,168,212,.7); }
+
+  /* ================= 网站用途介绍区 ================= */
+  .usage {
+    width: 100%;
+    max-width: 880px;
+    padding: 34px 30px 28px;
+    border-radius: 26px;
+    position: relative;
+    text-align: center;
+    background: linear-gradient(160deg, rgba(26, 30, 72, .45), rgba(16, 19, 48, .38));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(148, 170, 255, .18);
+    box-shadow: 0 24px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.1);
+    animation: usageIn 1s .25s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes usageIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .usage::before {
+    content: "";
+    position: absolute;
+    bottom: -1px; left: 20%;
+    width: 60%; height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), var(--pink), var(--cyan), transparent);
+    opacity: .8;
+  }
+
+  .usage-title {
+    font-size: 20px;
+    letter-spacing: 5px;
+    font-weight: 700;
+    color: transparent;
+    background: linear-gradient(92deg, var(--cyan), var(--violet) 50%, var(--pink));
+    -webkit-background-clip: text; background-clip: text;
+    filter: drop-shadow(0 0 12px rgba(167,139,250,.5));
+  }
+  .usage-sub {
+    margin-top: 8px;
+    font-size: 12.5px;
+    letter-spacing: 2px;
+    color: rgba(196, 206, 255, .6);
+  }
+
+  .usage-grid {
+    margin-top: 26px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  .usage-item {
+    padding: 20px 14px;
+    border-radius: 18px;
+    background: rgba(14, 18, 46, .5);
+    border: 1px solid rgba(148,170,255,.15);
+    transition: all .35s;
+    cursor: default;
+  }
+  .usage-item:hover {
+    transform: translateY(-6px);
+    border-color: rgba(167,139,250,.55);
+    box-shadow: 0 14px 32px rgba(88, 60, 200, .35), 0 0 24px rgba(139,92,246,.25);
+    background: rgba(22, 26, 62, .62);
+  }
+  .u-ic {
+    font-size: 26px;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 10px rgba(167,139,250,.6));
+  }
+  .u-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: transparent;
+    background: linear-gradient(90deg, var(--gold), var(--pink));
+    -webkit-background-clip: text; background-clip: text;
+    margin-bottom: 8px;
+  }
+  .u-desc {
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: rgba(198, 208, 246, .78);
+    letter-spacing: .5px;
+  }
+
+  .usage-about {
+    margin-top: 26px;
+    padding-top: 20px;
+    border-top: 1px dashed rgba(148,170,255,.2);
+    font-size: 12.5px;
+    line-height: 1.9;
+    color: rgba(190, 202, 244, .7);
+    letter-spacing: 1px;
+  }
+  .usage-about b {
+    color: transparent;
+    background: linear-gradient(90deg, var(--cyan), var(--violet));
+    -webkit-background-clip: text; background-clip: text;
+    font-weight: 600;
+  }
+  .usage-about .tag {
+    display: inline-block;
+    margin: 8px 5px 0;
+    padding: 5px 13px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    color: #dbe6ff;
+    background: rgba(90, 80, 200, .22);
+    border: 1px solid rgba(148,170,255,.25);
+  }
+
+  /* ---------- 物品种类区 ---------- */
+  .cat-section {
+    margin-top: 30px;
+    padding-top: 24px;
+    border-top: 1px dashed rgba(148,170,255,.2);
+  }
+  .cat-title {
+    font-size: 15px;
+    letter-spacing: 4px;
+    font-weight: 600;
+    color: transparent;
+    background: linear-gradient(90deg, var(--gold), var(--pink));
+    -webkit-background-clip: text; background-clip: text;
+  }
+  .cat-sub {
+    margin-top: 6px;
+    font-size: 11.5px;
+    letter-spacing: 1px;
+    color: rgba(196, 206, 255, .55);
+  }
+  .cat-grid {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 12px;
+  }
+  .cat-item {
+    padding: 14px 4px 10px;
+    border-radius: 14px;
+    text-align: center;
+    background: rgba(14, 18, 46, .5);
+    border: 1px solid rgba(148,170,255,.15);
+    transition: all .3s;
+    cursor: pointer;
+  }
+  .cat-item:hover {
+    transform: translateY(-5px);
+    border-color: rgba(56, 189, 248, .5);
+    background: rgba(20, 26, 60, .65);
+    box-shadow: 0 10px 26px rgba(56, 189, 248, .22), 0 0 18px rgba(56, 189, 248,.18);
+  }
+  .cat-item .c-ic { font-size: 22px; filter: drop-shadow(0 0 8px rgba(167,139,250,.5)); }
+  .cat-item .c-name {
+    margin-top: 7px;
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #dbe6ff;
+  }
+  .cat-item .c-desc {
+    margin-top: 5px;
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: rgba(198, 208, 246, .6);
+    letter-spacing: .3px;
+  }
+  .cat-item .c-more {
+    margin-top: 7px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: rgba(125, 211, 252, .75);
+  }
+
+  /* ---------- 品类商品弹窗 ---------- */
+  .modal.cp { max-width: 470px; }
+  .cp-count {
+    text-align: center;
+    margin: -12px 0 14px;
+    font-size: 11.5px;
+    letter-spacing: 1px;
+    color: rgba(196, 206, 255, .6);
+  }
+  .cp-list {
+    max-height: 54vh;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .cp-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 13px 12px;
+    border-radius: 16px;
+    margin-bottom: 10px;
+    background: rgba(14, 18, 46, .55);
+    border: 1px solid rgba(148, 170, 255, .16);
+    transition: all .3s;
+  }
+  .cp-item:hover {
+    border-color: rgba(167, 139, 250, .5);
+    background: rgba(22, 26, 62, .65);
+    box-shadow: 0 8px 22px rgba(88, 60, 200, .25);
+  }
+  .cp-ic {
+    flex: none;
+    width: 48px; height: 48px;
+    border-radius: 13px;
+    display: grid; place-items: center;
+    font-size: 25px;
+    background: linear-gradient(135deg, rgba(110, 231, 249, .18), rgba(139, 92, 246, .28));
+    border: 1px solid rgba(148, 170, 255, .25);
+    filter: drop-shadow(0 0 8px rgba(167, 139, 250, .4));
+  }
+  .cp-info { flex: 1; min-width: 0; }
+  .cp-name {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #eef2ff;
+  }
+  .cp-price {
+    flex: none;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: transparent;
+    background: linear-gradient(90deg, var(--gold), var(--pink));
+    -webkit-background-clip: text; background-clip: text;
+  }
+  .cp-desc {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.75;
+    letter-spacing: .5px;
+    color: rgba(198, 208, 246, .72);
+  }
+
+  /* 登录成功提示 */
+  .toast {
+    position: fixed;
+    left: 50%; top: 8%;
+    transform: translate(-50%, -16px);
+    z-index: 99;
+    padding: 12px 26px;
+    border-radius: 40px;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: #fff;
+    background: linear-gradient(90deg, #38bdf8, #8b5cf6, #ec4899);
+    box-shadow: 0 12px 40px rgba(139,92,246,.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: all .45s cubic-bezier(.2,.8,.2,1);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* 返回顶部星标 */
+  .back-top {
+    position: fixed;
+    right: 22px; bottom: 22px;
+    z-index: 50;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(148,170,255,.3);
+    background: rgba(20, 24, 58, .7);
+    color: var(--cyan);
+    font-size: 18px;
+    cursor: pointer;
+    display: grid; place-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .3s;
+    backdrop-filter: blur(8px);
+  }
+  .back-top.show { opacity: 1; pointer-events: auto; }
+  .back-top:hover {
+    box-shadow: 0 0 22px rgba(56,189,248,.5);
+    transform: translateY(-3px);
+  }
+
+  /* ---------- 顶部导航栏 ---------- */
+  .topnav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 60;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 26px;
+    background: linear-gradient(180deg, rgba(8, 11, 32, .72), rgba(8, 11, 32, .2));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(148, 170, 255, .14);
+  }
+  .topnav .nav-brand {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 18px; font-weight: 700; letter-spacing: 3px;
+    color: transparent;
+    background: linear-gradient(92deg, var(--cyan), var(--violet) 55%, var(--pink));
+    -webkit-background-clip: text; background-clip: text;
+  }
+  .topnav .nav-brand .nav-logo {
+    width: 30px; height: 30px; border-radius: 9px;
+    display: grid; place-items: center; font-size: 16px;
+    background: linear-gradient(135deg, #6ee7f9, #8b5cf6 55%, #ec4899);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, .4);
+  }
+  .topnav .nav-links { display: flex; align-items: center; gap: 10px; }
+  .nav-link {
+    font-size: 13.5px; letter-spacing: 1px; color: #c7d2fe;
+    text-decoration: none; padding: 7px 12px; border-radius: 10px;
+    transition: all .3s;
+  }
+  .nav-link:hover { color: #fff; background: rgba(139, 92, 246, .18); }
+  .nav-admin-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 12px; cursor: pointer;
+    font-size: 13.5px; letter-spacing: 1px; color: #fff;
+    border: 1px solid rgba(167, 139, 250, .5);
+    background: linear-gradient(92deg, #38bdf8 0%, #8b5cf6 48%, #ec4899 100%);
+    background-size: 180% 100%;
+    box-shadow: 0 8px 22px rgba(139, 92, 246, .35);
+    transition: all .3s; text-decoration: none;
+  }
+  .nav-admin-btn:hover {
+    background-position: 100% 0;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(139, 92, 246, .55), 0 0 22px rgba(236, 72, 153, .3);
+  }
+  /* 给导航栏下方内容预留空间 */
+  .wrap { padding-top: 96px; }
+
+  /* ---------- 注册弹窗 ---------- */
+  .modal-mask {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5, 8, 25, .62);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .modal-mask.show { display: flex; }
+  .modal {
+    width: 90%;
+    max-width: 380px;
+    padding: 30px 28px 26px;
+    border-radius: 22px;
+    background: linear-gradient(160deg, rgba(30, 35, 80, .92), rgba(18, 21, 52, .88));
+    border: 1px solid rgba(148, 170, 255, .28);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .65), 0 0 50px rgba(120, 100, 255, .12);
+    animation: cardIn .5s cubic-bezier(.2, .8, .2, 1) both;
+  }
+  .modal h3 {
+    text-align: center;
+    font-size: 19px;
+    letter-spacing: 4px;
+    margin-bottom: 20px;
+    color: transparent;
+    background: linear-gradient(92deg, var(--cyan), var(--violet) 50%, var(--pink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: drop-shadow(0 0 10px rgba(167, 139, 250, .5));
+  }
+  .modal .field { margin-bottom: 14px; }
+  .modal-btns { display: flex; gap: 12px; margin-top: 20px; }
+  .modal-btns .btn-login { letter-spacing: 4px; padding: 12px; font-size: 15px; }
+  .btn-ghost {
+    flex: 1;
+    padding: 12px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 15px;
+    letter-spacing: 4px;
+    color: #b9c3f2;
+    background: rgba(20, 24, 58, .55);
+    border: 1px solid rgba(148, 170, 255, .3);
+    transition: all .3s;
+    font-family: inherit;
+  }
+  .btn-ghost:hover { color: var(--cyan); border-color: var(--cyan); }
+
+  @media (max-width: 860px) {
+    .usage-grid { grid-template-columns: repeat(2, 1fr); }
+    .cat-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .card { padding: 32px 24px 26px; }
+    .moon { width: 80px; height: 80px; top: 4%; right: 6%; }
+    .wrap { padding: 32px 16px; gap: 32px; }
+    .usage { padding: 26px 18px 22px; }
+    .usage-grid { grid-template-columns: 1fr; gap: 14px; }
+    .usage-title { font-size: 17px; letter-spacing: 3px; }
+    .cat-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 动态星空背景层 -->
+  <div class="sky"></div>
+  <div class="galaxy"></div>
+  <div class="nebula"></div>
+  <div class="nebula b"></div>
+  <canvas id="starfield"></canvas>
+
+  <!-- 月亮 -->
+  <div class="moon">
+    <div class="moon-crater" style="width:26px;height:26px;top:16px;left:20px;"></div>
+    <div class="moon-crater" style="width:16px;height:16px;top:52px;left:56px;"></div>
+    <div class="moon-crater" style="width:11px;height:11px;top:30px;left:66px;"></div>
+  </div>
+
+  <!-- 顶部导航栏 -->
+  <header class="topnav">
+    <a class="nav-brand" href="starshop-login.html">
+      <span class="nav-logo">✦</span>
+      <span>星购商城</span>
+    </a>
+    <nav class="nav-links">
+      <a class="nav-link" href="starshop-login.html">首页</a>
+      <a class="nav-admin-btn" id="navAdminBtn" href="starshop-admin-login.html" style="display:none">⚙ 后台管理</a>
+    </nav>
+  </header>
+
+  <!-- 主容器 -->
+  <div class="wrap">
+
+    <!-- 登录卡片 -->
+    <div class="card" id="loginCard">
+      <div class="brand">
+        <div class="logo">
+          <div class="logo-ic">✦</div>
+        </div>
+        <div class="brand-text">星购商城</div>
+        <div class="slogan">STAR SHOPPING · 每一次购物都是一场星辰之旅</div>
+      </div>
+      <div class="stars-divider">✦ ✧ ✦</div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label>✦ 账号</label>
+          <div class="input-box">
+            <span class="input-ic">✉</span>
+            <input type="text" id="account" placeholder="手机号 / 邮箱" autocomplete="username" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>✦ 密码</label>
+          <div class="input-box">
+            <span class="input-ic">🔒</span>
+            <input type="password" id="psw" placeholder="请输入密码" autocomplete="current-password" />
+            <button type="button" class="toggle-psw" id="togglePsw" title="显示/隐藏密码">👁</button>
+          </div>
+        </div>
+
+        <div class="row-between">
+          <label class="remember">
+            <input type="checkbox" id="rememberMe" checked />
+            <span>✦ 记住我</span>
+          </label>
+          <button type="button" class="forgot" onclick="forgotTip()">忘记密码?</button>
+        </div>
+
+        <button type="submit" class="btn-login" id="loginBtn"><span class="twinkle">✦</span> 登 录 <span class="twinkle">✦</span></button>
+      </form>
+
+      <div class="third">
+        <div class="third-label">其他登录方式</div>
+        <div class="third-icons">
+          <button type="button" title="微信登录">💬</button>
+          <button type="button" title="QQ 登录">🐧</button>
+          <button type="button" title="苹果登录"></button>
+        </div>
+      </div>
+
+      <div class="footer-signup">
+        还没有账号？<a href="#" onclick="event.preventDefault();openReg()">立即注册</a>
+      </div>
+    </div>
+
+    <!-- 已登录欢迎面板：登录后由 JS 控制显隐，并按权限决定是否显示后台管理按钮 -->
+    <div class="card" id="welcomePanel" style="display:none; text-align:center;">
+      <div class="brand">
+        <div class="logo"><div class="logo-ic">✦</div></div>
+        <div class="brand-text">星购商城</div>
+      </div>
+      <div class="stars-divider">✦ ✧ ✦</div>
+      <div id="welcomeText" style="font-size:15px; letter-spacing:1px; color:#e2e8f0; line-height:1.9; margin: 6px 0 22px;"></div>
+      <button type="button" class="btn-login" id="logoutBtn"><span class="twinkle">✦</span> 退 出 登 录 <span class="twinkle">✦</span></button>
+    </div>
+
+    <!-- 网站用途介绍 -->
+    <section class="usage">
+      <div class="usage-title">✦ 网站用途简介 ✦</div>
+      <div class="usage-sub">星购商城 —— 集精选购物、限时优惠、会员权益与极速配送于一体的一站式星空购物平台</div>
+
+      <div class="usage-grid">
+        <div class="usage-item">
+          <div class="u-ic">🛍️</div>
+          <div class="u-title">精选好物</div>
+          <div class="u-desc">全球甄选百万商品，品质严选，品类齐全，让您一站购齐所需</div>
+        </div>
+        <div class="usage-item">
+          <div class="u-ic">⚡</div>
+          <div class="u-title">限时秒杀</div>
+          <div class="u-desc">每日星空专场限时开抢，超值折扣、优惠券叠加，省钱看得见</div>
+        </div>
+        <div class="usage-item">
+          <div class="u-ic">👑</div>
+          <div class="u-title">会员权益</div>
+          <div class="u-desc">星等级会员成长体系，专享折扣、积分返现与生日专属礼遇</div>
+        </div>
+        <div class="usage-item">
+          <div class="u-ic">🚚</div>
+          <div class="u-title">极速配送</div>
+          <div class="u-desc">全国仓配网络覆盖，次日送达，物流状态全程实时可追踪</div>
+        </div>
+      </div>
+
+      <!-- 物品种类 -->
+      <div class="cat-section">
+        <div class="cat-title">✦ 物品种类 ✦</div>
+        <div class="cat-sub">十六大星空品类 · 每类精选好物带简介 · 点击品类卡片即可查看商品目录</div>
+        <div class="cat-grid">
+          <div class="cat-item" data-cat="数码"><div class="c-ic">📱</div><div class="c-name">数码</div><div class="c-desc">手机 · 电脑 · 智能设备</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="数码配件"><div class="c-ic">🎧</div><div class="c-name">数码配件</div><div class="c-desc">耳机 · 充电 · 潮流周边</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="家居"><div class="c-ic">🏠</div><div class="c-name">家居</div><div class="c-desc">家纺 · 收纳 · 软装好物</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="生活"><div class="c-ic">🧴</div><div class="c-name">生活</div><div class="c-desc">纸品 · 清洁 · 日常用品</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="运动"><div class="c-ic">🏃</div><div class="c-name">运动</div><div class="c-desc">健身 · 球类 · 户外装备</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="手工"><div class="c-ic">🧶</div><div class="c-name">手工</div><div class="c-desc">手作 · 编织 · 独家定制</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="食物"><div class="c-ic">🍱</div><div class="c-name">食物</div><div class="c-desc">零食 · 生鲜 · 星空烘焙</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="厨具"><div class="c-ic">🍳</div><div class="c-name">厨具</div><div class="c-desc">锅具 · 餐具 · 烘焙工具</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="美妆"><div class="c-ic">💄</div><div class="c-name">美妆</div><div class="c-desc">护肤 · 彩妆 · 星辰香氛</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="服饰"><div class="c-ic">👗</div><div class="c-name">服饰</div><div class="c-desc">男装 · 女装 · 鞋包配饰</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="图书"><div class="c-ic">📚</div><div class="c-name">图书</div><div class="c-desc">文学 · 童书 · 教辅读物</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="文具"><div class="c-ic">✏️</div><div class="c-name">文具</div><div class="c-desc">办公 · 学习 · 手账周边</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="母婴"><div class="c-ic">🍼</div><div class="c-name">母婴</div><div class="c-desc">奶粉 · 辅食 · 婴童用品</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="玩具"><div class="c-ic">🧸</div><div class="c-name">玩具</div><div class="c-desc">潮玩 · 积木 · 毛绒公仔</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="鲜花绿植"><div class="c-ic">🌸</div><div class="c-name">鲜花绿植</div><div class="c-desc">鲜花 · 绿植 · 精致花器</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+          <div class="cat-item" data-cat="宠物"><div class="c-ic">🐾</div><div class="c-name">宠物</div><div class="c-desc">主粮 · 窝具 · 宠物零食</div><div class="c-more">3 件好物 · 点击查看 ›</div></div>
+        </div>
+      </div>
+
+      <div class="usage-about">
+        <b>关于本站：</b>星购商城致力于为用户提供<b>高性价比、正品保障、服务贴心</b>的在线购物体验。<br />
+        支持商品浏览与搜索、购物车管理、在线支付、订单追踪、售后服务与收藏清单等全流程功能，<br />
+        让您足不出户，便能穿越星海，轻松选购心仪好物。
+        <div>
+          <span class="tag">正品保障</span>
+          <span class="tag">七天无理由退换</span>
+          <span class="tag">在线支付</span>
+          <span class="tag">售后无忧</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 注册弹窗 -->
+  <div class="modal-mask" id="regModal">
+    <div class="modal">
+      <h3>✦ 注册星购账号 ✦</h3>
+      <form id="regForm">
+        <div class="field">
+          <label>✦ 昵称</label>
+          <div class="input-box">
+            <span class="input-ic">✦</span>
+            <input type="text" id="regUsername" placeholder="给自己起个星星名字" />
+          </div>
+        </div>
+        <div class="field">
+          <label>✦ 账号</label>
+          <div class="input-box">
+            <span class="input-ic">✉</span>
+            <input type="text" id="regAccount" placeholder="手机号 / 邮箱" />
+          </div>
+        </div>
+        <div class="field">
+          <label>✦ 密码</label>
+          <div class="input-box">
+            <span class="input-ic">🔒</span>
+            <input type="password" id="regPsw" placeholder="请输入密码" autocomplete="new-password" />
+          </div>
+        </div>
+        <div class="field">
+          <label>✦ 确认密码</label>
+          <div class="input-box">
+            <span class="input-ic">🔒</span>
+            <input type="password" id="regPsw2" placeholder="请再次输入密码" autocomplete="new-password" />
+          </div>
+        </div>
+        <div class="modal-btns">
+          <button type="button" class="btn-ghost" onclick="closeReg()">取 消</button>
+          <button type="submit" class="btn-login" id="regBtn">注 册</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 品类商品弹窗 -->
+  <div class="modal-mask" id="catModal">
+    <div class="modal cp">
+      <h3 id="catModalTitle">✦ 品类 ✦</h3>
+      <div class="cp-count" id="catModalCount"></div>
+      <div class="cp-list" id="catModalList"></div>
+      <div class="modal-btns">
+        <button type="button" class="btn-ghost" id="catModalClose">关 闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 提示 toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- 返回顶部 -->
+  <button class="back-top" id="backTop" title="回到星空之巅">✦</button>
+
+  <script>
+    /* 纯前端演示模式：直接双击(file://)打开也能运行，无需启动后端。
+       若后端已启动(http 协议)，仍会优先走真实接口。 */
+
+    /* ================= 星空粒子系统（多层视差 + 漂移 + 流星） ================= */
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let W, H, DPR;
+    let stars = [];
+    let bright = [];      // 亮星，用于星座连线
+    let shooting = null;
+    const COLORS = ['#ffffff', '#cfe6ff', '#fff3c4', '#e5d9ff', '#bff3ff', '#ffd9ec'];
+
+    function resize() {
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W = canvas.width = innerWidth * DPR;
+      H = canvas.height = innerHeight * DPR;
+      canvas.style.width = innerWidth + 'px';
+      canvas.style.height = innerHeight + 'px';
+      buildStars();
+    }
+
+    function buildStars() {
+      const count = Math.floor((innerWidth * innerHeight) / 2400);
+      stars = [];
+      for (let i = 0; i < count; i++) {
+        const lv = Math.random();
+        let layer, r, drift;
+        if (lv < .62)      { layer = 0; r = Math.random() * .5 + .25; drift = Math.random() * .06 + .02; }
+        else if (lv < .92) { layer = 1; r = Math.random() * .6 + .7;  drift = Math.random() * .12 + .07; }
+        else               { layer = 2; r = Math.random() * .8 + 1.3; drift = Math.random() * .2 + .16; }
+
+        stars.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          r: r * DPR,
+          layer,
+          drift: drift * DPR,
+          alpha: layer === 0 ? .45 : layer === 1 ? .7 : .95,
+          tw: Math.random() * Math.PI * 2,
+          speed: Math.random() * .9 + .3,
+          color: COLORS[(Math.random() * COLORS.length) | 0]
+        });
+      }
+      // 取最亮的若干颗用于星群连线
+      bright = stars.filter(s => s.layer === 2).slice(0, 26);
+    }
+
+    function spawnShooting() {
+      shooting = {
+        x: W * (0.1 + Math.random() * 0.75),
+        y: H * (0.03 + Math.random() * 0.28),
+        vx: (3.2 + Math.random() * 2.4) * DPR,
+        vy: (1.9 + Math.random() * 1.8) * DPR,
+        life: 1
+      };
+    }
+
+    let t = 0;
+    function draw() {
+      t += .016;
+      ctx.clearRect(0, 0, W, H);
+
+      /* 星群连线：随时间缓慢移动重组 */
+      ctx.strokeStyle = 'rgba(167, 139, 250, .16)';
+      ctx.lineWidth = .8 * DPR;
+      for (let i = 0; i < bright.length; i++) {
+        const a = bright[i];
+        for (let j = i + 1; j < bright.length; j++) {
+          const b = bright[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < 42000 * DPR * DPR) {
+            const d = Math.sqrt(d2);
+            ctx.globalAlpha = (1 - d / (205 * DPR)) * .3;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      /* 星星：横向漂移 + 呼吸闪烁 */
+      for (const s of stars) {
+        s.x -= s.drift;
+        if (s.x < -8) { s.x = W + 8; s.y = Math.random() * H; }
+
+        const a = (Math.sin(t * s.speed + s.tw) + 1) / 2;
+        ctx.globalAlpha = s.alpha * (.35 + a * .65);
+        ctx.fillStyle = s.color;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r + a * .7, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (s.layer >= 1 && a > .55) {
+          ctx.globalAlpha = a * .22;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r * (1.6 + a * 1.8), 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      /* 流星 */
+      if (!shooting && Math.random() < .006) spawnShooting();
+      if (shooting) {
+        shooting.x += shooting.vx;
+        shooting.y += shooting.vy;
+        shooting.life -= .014;
+        if (shooting.life <= 0 || shooting.x > W + 400 || shooting.y > H + 400) {
+          shooting = null;
+        } else {
+          const hx = shooting.x, hy = shooting.y;
+          const tx = hx - shooting.vx * 5, ty = hy - shooting.vy * 5;
+          ctx.globalAlpha = .95;
+          ctx.strokeStyle = 'rgba(253, 230, 138, .9)';
+          ctx.lineWidth = 2.2 * DPR;
+          ctx.lineCap = 'round';
+          const g = ctx.createLinearGradient(hx, hy, tx, ty);
+          g.addColorStop(0, 'rgba(255, 250, 232, .95)');
+          g.addColorStop(.35, 'rgba(253, 230, 138, .6)');
+          g.addColorStop(1, 'rgba(253, 230, 138, 0)');
+          ctx.strokeStyle = g;
+          ctx.beginPath();
+          ctx.moveTo(hx, hy);
+          ctx.lineTo(tx, ty);
+          ctx.stroke();
+
+          ctx.globalAlpha = .9;
+          ctx.fillStyle = '#fffae8';
+          ctx.beginPath();
+          ctx.arc(hx, hy, 2.4 * DPR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = .35;
+          ctx.beginPath();
+          ctx.arc(hx, hy, 7 * DPR, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    requestAnimationFrame(draw);
+
+    /* ================= 表单交互 ================= */
+    const psw = document.getElementById('psw');
+    const togglePsw = document.getElementById('togglePsw');
+    togglePsw.addEventListener('click', () => {
+      psw.type = psw.type === 'password' ? 'text' : 'password';
+      togglePsw.textContent = psw.type === 'password' ? '👁' : '🙈';
+    });
+
+    const toast = document.getElementById('toast');
+    let toastTimer;
+    function showToast(msg) {
+      toast.innerHTML = '✦ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    /* ================= 后端接口对接（Spring Boot） ================= */
+    // 页面由 Spring Boot 同源托管时直接用相对路径；直接双击打开(file://)时回退到本地后端地址
+    const API_BASE = location.protocol.startsWith('http') ? '' : 'http://localhost:8081';
+
+    async function postJson(url, body) {
+      const resp = await fetch(API_BASE + url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      return resp.json();
+    }
+
+    /* 记住我：回填上次登录账号 */
+    const savedAcc = localStorage.getItem('starshop_account');
+    if (savedAcc) document.getElementById('account').value = savedAcc;
+
+    /* ================= 用户表（统一账号体系，明文密码 + 权限字段） ================= */
+    /* permission: 0 = 管理员权限；1 = 默认(普通用户)权限。注册用户一律为默认权限(1)。 */
+    const USERS_KEY = 'starshop_users';
+    function getUsers() {
+      try { return JSON.parse(localStorage.getItem(USERS_KEY) || '[]'); } catch (e) { return []; }
+    }
+    function setUsers(arr) { localStorage.setItem(USERS_KEY, JSON.stringify(arr)); }
+    function seedUsers() {
+      if (!localStorage.getItem(USERS_KEY)) {
+        setUsers([
+          { username: '超级管理员', account: 'admin', password: 'admin888', permission: 0 },
+          { username: '星购体验官', account: 'demo',  password: '123456',  permission: 1 }
+        ]);
+      }
+    }
+    function permName(p) { return p === 0 ? '管理员' : '普通用户'; }
+    function esc2(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+
+    seedUsers();
+
+    /* 已登录：展示欢迎面板，并按权限决定是否显示「后台管理」按钮 */
+    function showLoggedIn() {
+      const user = JSON.parse(sessionStorage.getItem('starshop_user') || 'null');
+      if (!user) return;
+      document.getElementById('loginCard').style.display = 'none';
+      document.getElementById('welcomePanel').style.display = 'block';
+      document.getElementById('welcomeText').innerHTML =
+        '欢迎回来，<b style="color:#fff">' + esc2(user.username) + '</b><br/>' +
+        '<span style="font-size:12px;color:#aeb8f0;letter-spacing:1px">当前身份：' + permName(user.permission) +
+        (user.permission === 0 ? '（可管理后台）' : '（无后台管理权限）') + '</span>';
+      // 仅管理员权限(0)可见后台管理按钮；默认权限(1)看不到、也无法登录后台
+      document.getElementById('navAdminBtn').style.display = (user.permission === 0) ? 'inline-flex' : 'none';
+    }
+    if (sessionStorage.getItem('starshop_user')) showLoggedIn();
+
+    /* 登录：基于用户表(本地)校验，明文密码，按账号匹配 */
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const acc = document.getElementById('account').value.trim();
+      const pwd = psw.value;
+      if (!acc) { showToast('请先输入账号'); return; }
+      if (!pwd) { showToast('请先输入密码'); return; }
+
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      try {
+        seedUsers();
+        const user = getUsers().find(u => u.account === acc && u.password === pwd);
+        if (!user) { showToast('账号或密码错误'); return; }
+        if (document.getElementById('rememberMe').checked) {
+          localStorage.setItem('starshop_account', acc);
+        } else {
+          localStorage.removeItem('starshop_account');
+        }
+        sessionStorage.setItem('starshop_user', JSON.stringify({
+          username: user.username, account: user.account, permission: user.permission
+        }));
+        showToast('登录成功，欢迎回来，' + user.username);
+        showLoggedIn();
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    /* 退出登录 */
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      sessionStorage.removeItem('starshop_user');
+      location.href = 'starshop-login.html';
+    });
+
+    /* ================= 注册弹窗：写入用户表，默认权限 1（普通用户），明文密码 ================= */
+    const regModal = document.getElementById('regModal');
+    function openReg() { regModal.classList.add('show'); }
+    function closeReg() { regModal.classList.remove('show'); }
+    regModal.addEventListener('click', (e) => { if (e.target === regModal) closeReg(); });
+
+    document.getElementById('regForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('regUsername').value.trim();
+      const account = document.getElementById('regAccount').value.trim();
+      const password = document.getElementById('regPsw').value;
+      const confirmPassword = document.getElementById('regPsw2').value;
+
+      if (!username) { showToast('请先输入昵称'); return; }
+      if (!account) { showToast('请先输入账号'); return; }
+      if (!password) { showToast('请先输入密码'); return; }
+      if (password !== confirmPassword) { showToast('两次输入的密码不一致'); return; }
+
+      const btn = document.getElementById('regBtn');
+      btn.disabled = true;
+      try {
+        seedUsers();
+        const users = getUsers();
+        if (users.some(u => u.account === account)) { showToast('该账号已被注册'); return; }
+        users.push({ username, account, password, permission: 1 }); // 默认权限 1（普通用户）
+        setUsers(users);
+        showToast('注册成功，快去登录吧');
+        closeReg();
+        document.getElementById('account').value = account;
+        document.getElementById('regForm').reset();
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    /* ================= 物品种类 · 商品目录（点击品类卡片查看该品类商品） ================= */
+    const CATEGORY_PRODUCTS = {
+      '数码': [
+        { emoji: '📱', name: '星轨手机 Pro', price: 3999, desc: '6.7 英寸星幕全面屏，一亿像素夜拍算法，随手一拍就能记录头顶的银河。' },
+        { emoji: '💻', name: '银河轻薄本', price: 5299, desc: '1.19kg 星尘镁铝机身，16 小时超长续航，办公追剧两不误的随行星伴。' },
+        { emoji: '⌚', name: '星语智能手表', price: 1299, desc: '心率血氧全天监测，上百款星空表盘随心换，把健康与浪漫戴在同一只手腕上。' }
+      ],
+      '数码配件': [
+        { emoji: '🎧', name: '星云降噪耳机', price: 399, desc: '48dB 深度主动降噪，戴上它的瞬间，世界里只剩下你和你的音乐。' },
+        { emoji: '🔋', name: '流星充电宝', price: 129, desc: '20000mAh 大容量 + 星尘磨砂涂层，22.5W 快充低温不烫手。' },
+        { emoji: '🖱️', name: '彗星无线鼠标', price: 99, desc: '静音微动按起来悄无声息，尾部一圈星光呼吸灯，深夜加班也仪式感满满。' }
+      ],
+      '家居': [
+        { emoji: '💡', name: '银河星空投影灯', price: 159, desc: '7200 万色星光投影，把 30 平米的卧室瞬间变成一片流动的星海。' },
+        { emoji: '🛏️', name: '云朵记忆棉枕', price: 199, desc: '慢回弹太空记忆棉，贴合颈椎曲线，落枕星人的深夜救赎。' },
+        { emoji: '🧺', name: '星尘收纳箱', price: 69, desc: '可折叠大容量，磨砂星纹面料，杂物从此隐入星尘。' }
+      ],
+      '生活': [
+        { emoji: '🥤', name: '星云保温杯', price: 89, desc: '316 医用级不锈钢内胆，12 小时保温保冷，通勤路上手心里的那颗暖星。' },
+        { emoji: '🧴', name: '月光洁面巾', price: 29, desc: '植物纤维一次一张，干湿两用，洗脸像被月光轻轻擦过。' },
+        { emoji: '🌂', name: '星空自动伞', price: 79, desc: '十骨抗风骨架 + 一秒开合，暴雨天也能撑出一方星空。' }
+      ],
+      '运动': [
+        { emoji: '👟', name: '流星气垫跑鞋', price: 499, desc: '高弹气垫中底 + 透气星网鞋面，跑起来的每一步都像踩在星云上。' },
+        { emoji: '🧘', name: '星际瑜伽垫', price: 139, desc: '8mm 加厚 TPE 材质，双面防滑，冥想时仿佛漂浮在太空。' },
+        { emoji: '🏸', name: '星轨羽毛球拍', price: 259, desc: '全碳纤维超轻拍框，击球瞬间带着一道星轨残影。' }
+      ],
+      '手工': [
+        { emoji: '🧶', name: '手作星河挂毯', price: 199, desc: '匠人一根根手编而成，每一颗绒线星星的分布都不重复，世上仅此一件。' },
+        { emoji: '🕯️', name: '星尘香薰蜡烛', price: 89, desc: '大豆蜡手工浇注，点燃后星光蜡片缓缓融化，香气是雪松与晚风。' },
+        { emoji: '🎨', name: '星空树脂手办', price: 299, desc: '手工调胶层层浇定，把真实星云照片封存进方寸之间。' }
+      ],
+      '食物': [
+        { emoji: '🍫', name: '星空夹心巧克力', price: 69, desc: '每颗巧克力上都印着一张真实的星云照片，甜味与宇宙一同入口。' },
+        { emoji: '🍪', name: '银河曲奇礼盒', price: 49, desc: '十二块曲奇十二种夹心口味，一盒吃完，像绕银河转了一整圈。' },
+        { emoji: '🍹', name: '星屿气泡果汁', price: 15, desc: '真实果汁 + 满杯气泡，咬破爆珠的瞬间像咬到了一颗小星星。' }
+      ],
+      '厨具': [
+        { emoji: '🍳', name: '星尘麦饭石不粘锅', price: 179, desc: '麦饭石蜂窝涂层，少油少烟，煎蛋完整滑落，锅身如撒了一层星尘。' },
+        { emoji: '🍜', name: '星际窑变拉面碗', price: 59, desc: '日式窑变釉工艺，每一只碗的星纹都独一无二，盛面也盛下夜晚。' },
+        { emoji: '☕', name: '星云温控手冲壶', price: 239, desc: '鹅颈细嘴 + 精准温控，水流划出的弧线，是清晨的第一道星轨。' }
+      ],
+      '美妆': [
+        { emoji: '💄', name: '流光星辰口红', price: 129, desc: '细闪星沙质地，涂上后嘴唇像落满碎星，一整天都在发光。' },
+        { emoji: '✨', name: '银河高光盘', price: 99, desc: '偏光珠光配方，刷过苹果肌的一瞬，整张脸亮成一条银河。' },
+        { emoji: '🧴', name: '星夜修护精华', price: 259, desc: '玻色因 + 烟酰胺双效配方，熬夜党的深夜修护站，睡醒就是新生。' }
+      ],
+      '服饰': [
+        { emoji: '👗', name: '银河渐变连衣裙', price: 359, desc: '从深蓝到星紫的自然晕染，裙摆转动时像整片银河在旋转。' },
+        { emoji: '🧥', name: '星际飞行夹克', price: 459, desc: '夜光星轨反光印花，白天低调，入夜骑行就是城市里最亮的星。' },
+        { emoji: '👢', name: '月尘马丁靴', price: 599, desc: '头层牛皮 + 防滑大底，踩过泥泞也不会失去月亮的颜色。' }
+      ],
+      '图书': [
+        { emoji: '📚', name: '星海漫游摄影集', price: 128, desc: '收录 137 张深空实拍照片，每一页都是一次跨越光年的凝视。' },
+        { emoji: '📖', name: '银河系漫游指南', price: 45, desc: '科幻经典的幽默巅峰，读完你会发现毛巾才是宇宙中最有用的东西。' },
+        { emoji: '📔', name: '零基础观星手册', price: 39, desc: '从认北斗七星开始，带你逐月认识头顶的每一个星座。' }
+      ],
+      '文具': [
+        { emoji: '✏️', name: '流星手账套装', price: 49, desc: '星空封面手账本 + 星球胶带贴纸全配齐，记录日常也像在写星际日志。' },
+        { emoji: '🖊️', name: '星轨中性笔', price: 19, desc: '0.5mm 顺滑按动笔尖，书写不断墨，写出的每一行都是星轨。' },
+        { emoji: '🖍️', name: '星光荧光笔', price: 12, desc: '糖果色半透明墨水，重点划过的地方像被星星点亮。' }
+      ],
+      '母婴': [
+        { emoji: '🍼', name: '星际母婴待产礼盒', price: 399, desc: '奶瓶、纱布巾、新生儿衣一盒配齐，给即将抵达地球的小星星的第一份礼物。' },
+        { emoji: '🦄', name: '星光安抚海马', price: 89, desc: '柔光 + 舒眠音乐双模式，哭闹的夜晚，让一只小海马替你哄睡。' },
+        { emoji: '🥣', name: '星空辅食机', price: 299, desc: '蒸煮搅拌一体，15 分钟做出一碗细腻的星星米糊。' }
+      ],
+      '玩具': [
+        { emoji: '🧸', name: '星河毛绒公仔', price: 99, desc: '慢回弹超软短绒，抱进怀里像抱住了一团云，是深夜的安全感本感。' },
+        { emoji: '🧩', name: '1000 片银河拼图', price: 129, desc: '基于真实哈勃照片印制，拼完裱起来，就是家里最震撼的一幅星图。' },
+        { emoji: '🔭', name: '入门天文望远镜', price: 499, desc: '手机支架可直连拍摄，第一次看清月球环形山的那种震撼，值得每个孩子拥有。' }
+      ],
+      '鲜花绿植': [
+        { emoji: '🌸', name: '星语永生花礼盒', price: 129, desc: '真空保色工艺，三年不谢，把某个重要夜晚的星空永远留住。' },
+        { emoji: '🌵', name: '星尘多肉盆栽', price: 25, desc: '带星白霜的莲花座多肉，一个月浇一次水，懒人也能养出一片小宇宙。' },
+        { emoji: '🌙', name: '月光小夜灯花瓶', price: 79, desc: '插花是花瓶，点亮是月亮，一物两用的浪漫摆在床头刚刚好。' }
+      ],
+      '宠物': [
+        { emoji: '🐾', name: '银河半封闭宠物窝', price: 119, desc: '星洞式半封闭设计，猫狗钻进去就像躲进了一颗安全的星球。' },
+        { emoji: '🦴', name: '星星磨牙棒', price: 35, desc: '低温烘焙耐咬补钙，狗狗啃它的时候，尾巴摇得像一颗小流星。' },
+        { emoji: '🍚', name: '星际自动喂食器', price: 259, desc: '定时定量 + 防潮粮仓，出差三天，主子的饭点一颗都不会错过。' }
+      ]
+    };
+
+    /* 品类卡片点击 -> 打开该品类商品目录弹窗 */
+    const catModal = document.getElementById('catModal');
+    function openCat(cat) {
+      const list = CATEGORY_PRODUCTS[cat] || [];
+      document.getElementById('catModalTitle').innerHTML = '✦ ' + esc2(cat) + ' · 商品目录 ✦';
+      document.getElementById('catModalCount').textContent =
+        '共 ' + list.length + ' 件精选好物 · 每一件都值得摘下';
+      document.getElementById('catModalList').innerHTML = list.map(p =>
+        '<div class="cp-item">' +
+          '<div class="cp-ic">' + p.emoji + '</div>' +
+          '<div class="cp-info">' +
+            '<div class="cp-name"><span>' + esc2(p.name) + '</span><span class="cp-price">¥' + p.price + '</span></div>' +
+            '<div class="cp-desc">' + esc2(p.desc) + '</div>' +
+          '</div>' +
+        '</div>'
+      ).join('');
+      catModal.classList.add('show');
+    }
+    function closeCat() { catModal.classList.remove('show'); }
+    document.querySelectorAll('.cat-item').forEach(item => {
+      item.addEventListener('click', () => openCat(item.dataset.cat));
+    });
+    catModal.addEventListener('click', (e) => { if (e.target === catModal) closeCat(); });
+    document.getElementById('catModalClose').addEventListener('click', closeCat);
+
+    function forgotTip() { showToast('正在为您开启星光找回通道...'); }
+
+    /* 返回顶部按钮 */
+    const backTop = document.getElementById('backTop');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 220) backTop.classList.add('show');
+      else backTop.classList.remove('show');
+    });
+    backTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>

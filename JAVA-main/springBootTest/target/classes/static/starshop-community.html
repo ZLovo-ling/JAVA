@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星友社区 · 星河商城</title>
+<link rel="stylesheet" href="starshop-theme.css">
+<style>
+/* ===== 社区页专属样式（星空主题延伸） ===== */
+.app { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; padding: 24px 20px 60px; }
+
+.hero {
+  display: grid; grid-template-columns: 1.6fr 1fr; gap: 18px;
+  padding: 26px 28px; border-radius: 20px;
+  background: linear-gradient(150deg, rgba(56,189,248,.13), rgba(139,92,246,.14), rgba(236,72,153,.10));
+  border: 1px solid var(--line);
+  margin-bottom: 22px;
+}
+.hero-title {
+  font-size: 22px; font-weight: 700; letter-spacing: 3px;
+  background: linear-gradient(92deg, var(--cyan), var(--violet) 50%, var(--pink));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero-sub { margin-top: 8px; font-size: 13px; color: rgba(178,190,230,.75); letter-spacing: 1px; }
+.hero-stats { margin-top: 20px; display: flex; gap: 38px; flex-wrap: wrap; }
+.stat-num { font-size: 26px; font-weight: 700; color: #f1f5ff; }
+.stat-num.gold { color: var(--gold); }
+.stat-lbl { margin-top: 4px; font-size: 12px; color: rgba(178,190,230,.65); letter-spacing: 1px; }
+
+.hero-dist {
+  display: flex; flex-direction: column; justify-content: center; gap: 8px;
+  padding-left: 22px; border-left: 1px dashed var(--line);
+}
+.dist-title { font-size: 13px; color: #cbd5f5; letter-spacing: 2px; margin-bottom: 2px; }
+.dist-row { display: flex; align-items: center; gap: 10px; }
+.dist-star { width: 30px; font-size: 12px; color: var(--gold); flex-shrink: 0; }
+.dist-bar { flex: 1; height: 8px; border-radius: 99px; background: rgba(13,17,44,.6); overflow: hidden; }
+.dist-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg,#38bdf8,#8b5cf6,#ec4899); transition: width .6s ease; }
+.dist-count { width: 28px; text-align: right; font-size: 12px; color: rgba(178,190,230,.7); }
+.btn-write {
+  margin-top: 12px; align-self: flex-start;
+  padding: 10px 24px; border: none; border-radius: 12px; cursor: pointer;
+  font-size: 13.5px; color: #fffdf5; font-family: inherit;
+  background: linear-gradient(92deg, #38bdf8, #8b5cf6 55%, #ec4899);
+  box-shadow: 0 8px 22px rgba(139,92,246,.35);
+}
+.btn-write:hover { filter: brightness(1.12); transform: translateY(-2px); }
+
+/* 筛选栏 */
+.filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px; }
+.chip {
+  padding: 8px 18px; font-size: 13.5px; cursor: pointer; color: #c7d2fe;
+  background: rgba(20,24,58,.55); border: 1px solid rgba(148,170,255,.24);
+  border-radius: 999px; font-family: inherit; transition: all .25s;
+}
+.chip:hover { color: #fff; border-color: var(--violet); transform: translateY(-2px); }
+.chip.on {
+  color: #0b1029; font-weight: 600; border-color: transparent;
+  background: linear-gradient(92deg, var(--cyan), var(--violet));
+  box-shadow: 0 6px 18px rgba(139,92,246,.4);
+}
+.chip.small { padding: 6px 14px; font-size: 12.5px; }
+.sort-box { margin-left: auto; display: flex; gap: 8px; }
+
+.search-mini {
+  display: flex; gap: 8px; flex-basis: 100%; margin-top: 4px;
+}
+.search-mini input {
+  flex: 1; padding: 10px 16px; font-size: 14px; color: #f1f5ff;
+  background: rgba(13,17,44,.55); border: 1px solid rgba(140,160,255,.22);
+  border-radius: 12px; outline: none; font-family: inherit;
+}
+.search-mini input:focus { border-color: rgba(167,139,250,.8); }
+.search-mini button {
+  padding: 10px 20px; border: none; border-radius: 12px; cursor: pointer;
+  color: #fffdf5; font-size: 14px; font-family: inherit;
+  background: linear-gradient(92deg, #38bdf8, #8b5cf6 55%, #ec4899);
+}
+
+/* 主体布局 */
+.community-layout { display: grid; grid-template-columns: 1fr 320px; gap: 18px; align-items: start; }
+
+/* 评价卡片 */
+.review-card {
+  padding: 18px 20px; border-radius: 18px; margin-bottom: 14px;
+  background: linear-gradient(160deg, rgba(30,35,80,.5), rgba(18,21,52,.4));
+  border: 1px solid rgba(148,170,255,.18); transition: all .3s;
+}
+.review-card:hover {
+  transform: translateY(-3px); border-color: rgba(167,139,250,.5);
+  box-shadow: 0 16px 36px rgba(0,0,0,.45), 0 0 26px rgba(139,92,246,.18);
+}
+.rc-head { display: flex; align-items: center; gap: 12px; }
+.rc-avatar {
+  width: 36px; height: 36px; display: grid; place-items: center;
+  border-radius: 50%; font-size: 16px; color: #0b1029; font-weight: 600; flex-shrink: 0;
+}
+.rc-user { flex: 1; min-width: 0; }
+.rc-name { font-size: 14.5px; color: #eef2ff; }
+.rc-time { margin-top: 2px; font-size: 12px; color: rgba(178,190,230,.55); }
+.rc-stars { font-size: 15px; letter-spacing: 2px; flex-shrink: 0; }
+.stars-5, .stars-4 { color: var(--gold); }
+.stars-3 { color: #fbbf24; }
+.stars-2, .stars-1 { color: #fb7185; }
+
+.rc-product {
+  margin-top: 12px; display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: 14px;
+  background: rgba(13,17,44,.5); border: 1px solid rgba(148,170,255,.14);
+  cursor: pointer; transition: all .25s;
+}
+.rc-product:hover { border-color: rgba(56,189,248,.5); background: rgba(13,17,44,.7); }
+.rc-icon { font-size: 26px; }
+.rc-pname { font-size: 13.5px; color: #e2e8ff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rc-pmeta { margin-top: 4px; display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.rc-cat { padding: 2px 8px; border-radius: 999px; background: rgba(139,92,246,.18); color: #c4b5fd; }
+.rc-price { color: var(--gold); font-weight: 600; }
+.rc-content { margin: 12px 0 0; font-size: 14px; line-height: 1.8; color: #d3dcf7; word-break: break-word; }
+
+/* 口碑榜 */
+.rank-panel {
+  padding: 18px; border-radius: 18px; position: sticky; top: 20px;
+  background: linear-gradient(160deg, rgba(30,35,80,.5), rgba(18,21,52,.4));
+  border: 1px solid rgba(148,170,255,.18);
+}
+.rank-title {
+  font-size: 15px; font-weight: 600; letter-spacing: 2px; margin-bottom: 14px;
+  background: linear-gradient(92deg, var(--cyan), var(--violet) 50%, var(--pink));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.rank-item { display: flex; align-items: center; gap: 10px; padding: 9px 6px; border-radius: 12px; transition: background .25s; }
+.rank-item:hover { background: rgba(56,189,248,.08); }
+.rank-no { width: 22px; text-align: center; font-size: 13px; font-weight: 700; font-style: italic; color: rgba(178,190,230,.6); flex-shrink: 0; }
+.rank-no.top { color: var(--gold); text-shadow: 0 0 10px rgba(245,200,90,.5); }
+.rank-icon { font-size: 20px; flex-shrink: 0; }
+.rank-name { font-size: 12.5px; color: #e2e8ff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-meta { margin-top: 3px; display: flex; align-items: center; gap: 6px; font-size: 11.5px; }
+.rank-avg { letter-spacing: 1px; color: var(--gold); font-size: 11px; }
+.rank-score { color: var(--gold); font-weight: 700; }
+.rank-count { color: rgba(178,190,230,.55); margin-left: auto; }
+
+.empty { padding: 50px 0; text-align: center; font-size: 14px; color: rgba(178,190,230,.6); }
+
+/* 写评价弹窗 */
+.modal-mask {
+  position: fixed; inset: 0; z-index: 60; display: none;
+  place-items: center; background: rgba(5,8,26,.7); backdrop-filter: blur(6px);
+}
+.modal-mask.show { display: grid; }
+.modal {
+  width: min(480px, 92vw); padding: 26px 28px; border-radius: 20px;
+  background: linear-gradient(160deg, #232a5e, #14183a);
+  border: 1px solid rgba(148,170,255,.3);
+  box-shadow: 0 30px 80px rgba(0,0,0,.6);
+}
+.modal-title {
+  font-size: 18px; font-weight: 700; letter-spacing: 2px; margin-bottom: 18px;
+  background: linear-gradient(92deg, var(--cyan), var(--violet) 50%, var(--pink));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.field { display: block; margin-bottom: 16px; }
+.f-label { display: block; margin-bottom: 7px; font-size: 12.5px; color: rgba(178,190,230,.8); letter-spacing: 1px; }
+.field select, .field textarea {
+  width: 100%; padding: 10px 14px; font-size: 13.5px; color: #f1f5ff;
+  background: rgba(13,17,44,.65); border: 1px solid rgba(140,160,255,.22);
+  border-radius: 12px; outline: none; font-family: inherit;
+}
+.field select option { background: #14183a; color: #f1f5ff; }
+.field textarea { resize: vertical; line-height: 1.7; }
+.star-pick { display: flex; align-items: center; gap: 4px; }
+.star-btn {
+  width: 34px; height: 34px; border: none; border-radius: 10px;
+  background: rgba(13,17,44,.65); color: rgba(148,170,255,.35);
+  font-size: 19px; cursor: pointer; transition: all .2s;
+}
+.star-btn.lit { color: var(--gold); text-shadow: 0 0 12px rgba(245,200,90,.6); transform: scale(1.08); }
+.star-num { margin-left: 10px; font-size: 13px; color: var(--gold); }
+.modal-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+.btn-ghost {
+  padding: 10px 22px; font-size: 13.5px; border-radius: 12px; cursor: pointer; font-family: inherit;
+  color: #cbd5f5; background: rgba(13,17,44,.6); border: 1px solid rgba(148,170,255,.28);
+}
+.btn-main {
+  padding: 10px 22px; font-size: 13.5px; border-radius: 12px; cursor: pointer; font-family: inherit;
+  color: #fffdf5; border: none;
+  background: linear-gradient(92deg, #38bdf8, #8b5cf6 55%, #ec4899);
+}
+.btn-main:disabled { opacity: .6; cursor: not-allowed; }
+
+@media (max-width: 920px) {
+  .community-layout { grid-template-columns: 1fr; }
+  .rank-panel { position: static; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-dist { border-left: none; padding-left: 0; border-top: 1px dashed var(--line); padding-top: 14px; }
+}
+</style>
+</head>
+<body>
+<div class="sky"></div><div class="galaxy"></div>
+<div class="nebula"></div><div class="nebula b"></div>
+<canvas id="starfield"></canvas><div class="moon"></div>
+
+<div id="topnav"></div>
+
+<div class="app">
+  <!-- 社区总览 -->
+  <section class="hero" id="hero">
+    <div>
+      <div class="hero-title">✦ 星友评价社区</div>
+      <div class="hero-sub">各位星友对各类商品的真实评价 · 选购前先来看看大家怎么说</div>
+      <div class="hero-stats">
+        <div><div class="stat-num" id="ovTotal">--</div><div class="stat-lbl">条评价</div></div>
+        <div><div class="stat-num gold" id="ovAvg">--★</div><div class="stat-lbl">平均分</div></div>
+        <div><div class="stat-num" id="ovUsers">--</div><div class="stat-lbl">位星友</div></div>
+        <div><div class="stat-num" id="ovProducts">--</div><div class="stat-lbl">件商品被评</div></div>
+      </div>
+    </div>
+    <div class="hero-dist">
+      <div class="dist-title">星级分布</div>
+      <div id="distRows"></div>
+      <button class="btn-write" onclick="openForm()">✦ 发表评价</button>
+    </div>
+  </section>
+
+  <!-- 筛选 + 评价流 + 口碑榜 -->
+  <div class="community-layout">
+    <section>
+      <div class="filter-bar">
+        <button class="chip on" data-tab="all" onclick="pickTab('all', this)">全部</button>
+        <button class="chip" data-tab="good" onclick="pickTab('good', this)">好评 4-5★</button>
+        <button class="chip" data-tab="mid" onclick="pickTab('mid', this)">中评 3★</button>
+        <button class="chip" data-tab="bad" onclick="pickTab('bad', this)">差评 1-2★</button>
+        <button class="chip" data-tab="mine" onclick="pickTab('mine', this)">我的评价</button>
+        <div class="sort-box">
+          <button class="chip small on" id="sortLatest" onclick="pickSort('latest')">最新</button>
+          <button class="chip small" id="sortRating" onclick="pickSort('rating')">高分</button>
+        </div>
+        <div class="search-mini">
+          <input type="text" id="kwInput" placeholder="搜索评价 / 商品 / 星友…" onkeydown="if(event.key==='Enter')doSearch()">
+          <button onclick="doSearch()">搜索</button>
+        </div>
+      </div>
+
+      <div id="reviewList"></div>
+    </section>
+
+    <aside class="rank-panel">
+      <h3 class="rank-title">🏆 商品口碑榜</h3>
+      <div id="rankList"></div>
+    </aside>
+  </div>
+
+  <footer class="footer">星河商城 · 星友社区 · 每一条评价都来自真实星友 ✦</footer>
+</div>
+
+<!-- 写评价弹窗 -->
+<div class="modal-mask" id="modalMask" onclick="if(event.target===this)closeForm()">
+  <div class="modal">
+    <h3 class="modal-title">✦ 发表评价</h3>
+    <label class="field">
+      <span class="f-label">选择商品</span>
+      <select id="fProduct"><option value="" disabled selected>— 请选择要评价的商品 —</option></select>
+    </label>
+    <label class="field">
+      <span class="f-label">评分</span>
+      <div class="star-pick" id="starPick"></div>
+    </label>
+    <label class="field">
+      <span class="f-label">评价内容（5-500 字）</span>
+      <textarea id="fContent" rows="4" maxlength="500" placeholder="聊聊使用感受：做工、性能、值不值…"></textarea>
+    </label>
+    <div class="modal-btns">
+      <button class="btn-ghost" onclick="closeForm()">取消</button>
+      <button class="btn-main" id="btnSubmit" onclick="submitReview()">发表评价</button>
+    </div>
+  </div>
+</div>
+
+<script src="starshop-common.js"></script>
+<script>
+/* ================= 星友社区页逻辑 ================= */
+const TABS = {
+  all:  { min: null, max: null },
+  good: { min: 4, max: 5 },
+  mid:  { min: 3, max: 3 },
+  bad:  { min: 1, max: 2 },
+  mine: { min: null, max: null }
+};
+let curTab = 'all';
+let curSort = 'latest';
+let curKeyword = '';
+let goodsList = [];
+let formRating = 5;
+
+const AVATAR_COLORS = ['#38bdf8','#8b5cf6','#ec4899','#f59e0b','#34d399','#f472b6','#a78bfa','#22d3ee'];
+function avatarColor(name) {
+  let h = 0;
+  for (const ch of String(name || 'x')) h = (h * 31 + ch.codePointAt(0)) % 997;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
+}
+function starsText(n) { return '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n); }
+function timeText(t) { return t ? String(t).replace('T', ' ').slice(0, 16) : ''; }
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------- 总览 + 星级分布 ---------- */
+async function loadOverview() {
+  try {
+    const ov = await getJson('/api/community/overview');
+    document.getElementById('ovTotal').textContent = ov.totalReviews;
+    document.getElementById('ovAvg').textContent = (ov.avgRating || 0) + '★';
+    document.getElementById('ovUsers').textContent = ov.reviewerCount;
+    document.getElementById('ovProducts').textContent = ov.productCount;
+    const dist = ov.ratingDistribution || {};
+    const max = Math.max(1, ...Object.values(dist));
+    let html = '';
+    for (let s = 5; s >= 1; s--) {
+      const c = dist[s] || 0;
+      html += `<div class="dist-row"><span class="dist-star">${s}★</span>
+        <div class="dist-bar"><div class="dist-fill" style="width:${(c / max) * 100}%"></div></div>
+        <span class="dist-count">${c}</span></div>`;
+    }
+    document.getElementById('distRows').innerHTML = html;
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+/* ---------- 口碑榜 ---------- */
+async function loadRanks() {
+  try {
+    const ranks = await getJson('/api/community/ranks');
+    document.getElementById('rankList').innerHTML = (ranks || []).map((p, i) => `
+      <div class="rank-item">
+        <span class="rank-no ${i < 3 ? 'top' : ''}">${i + 1}</span>
+        <span class="rank-icon">${esc(p.icon || '✦')}</span>
+        <div style="flex:1;min-width:0">
+          <div class="rank-name">${esc(p.productName)}</div>
+          <div class="rank-meta">
+            <span class="rank-avg">${starsText(Math.round(p.avgRating))}</span>
+            <span class="rank-score">${p.avgRating}</span>
+            <span class="rank-count">${p.reviewCount} 条</span>
+          </div>
+        </div>
+      </div>`).join('') || '<div class="empty">暂无数据</div>';
+  } catch (e) { document.getElementById('rankList').innerHTML = '<div class="empty">加载失败</div>'; }
+}
+
+/* ---------- 评价列表 ---------- */
+async function loadReviews() {
+  const box = document.getElementById('reviewList');
+  const u = getCurrentUser();
+  try {
+    let list;
+    if (curTab === 'mine') {
+      if (!u || !u.id) { box.innerHTML = '<div class="empty">请先登录后查看自己的评价</div>'; return; }
+      list = await getJson('/api/community/my', { userId: u.id });
+    } else {
+      const p = { sort: curSort };
+      if (curKeyword) p.keyword = curKeyword;
+      if (TABS[curTab].min !== null) p.minRating = TABS[curTab].min;
+      if (TABS[curTab].max !== null) p.maxRating = TABS[curTab].max;
+      list = await getJson('/api/community/reviews', p);
+    }
+    if (!list || !list.length) {
+      box.innerHTML = '<div class="empty">' + (curTab === 'mine' ? '你还没有发表过评价，点上方「发表评价」试试 ✦' : '没有找到符合条件的评价 ✦') + '</div>';
+      return;
+    }
+    box.innerHTML = list.map(r => {
+      const mineTag = u && r.userId === u.id ? '<span style="padding:1px 8px;font-size:11px;border-radius:99px;color:#0b1029;background:linear-gradient(92deg,#6ee7f9,#38bdf8);font-weight:600;margin-left:8px">我</span>' : '';
+      return `
+      <article class="review-card">
+        <div class="rc-head">
+          <span class="rc-avatar" style="background:${avatarColor(r.username)}">${esc(String(r.username || '?').slice(0, 1))}</span>
+          <div class="rc-user">
+            <div class="rc-name">${esc(r.username)}${mineTag}</div>
+            <div class="rc-time">${timeText(r.createTime)}</div>
+          </div>
+          <span class="rc-stars stars-${r.rating}">${starsText(r.rating)}</span>
+        </div>
+        <div class="rc-product" onclick="location.href='starshop-detail.html?id=${r.productId}'">
+          <span class="rc-icon">${esc(r.productIcon || '✦')}</span>
+          <div style="flex:1;min-width:0">
+            <div class="rc-pname">${esc(r.productName || '商品已下架')}</div>
+            <div class="rc-pmeta">
+              ${r.categoryName ? `<span class="rc-cat">${esc(r.categoryName)}</span>` : ''}
+              ${r.productPrice != null ? `<span class="rc-price">${money(r.productPrice)}</span>` : ''}
+            </div>
+          </div>
+        </div>
+        <p class="rc-content">${esc(r.content)}</p>
+      </article>`;
+    }).join('');
+  } catch (e) {
+    box.innerHTML = '<div class="empty">' + esc(e.message) + '</div>';
+  }
+}
+
+/* ---------- 筛选交互 ---------- */
+function pickTab(tab, btn) {
+  curTab = tab;
+  document.querySelectorAll('.filter-bar [data-tab]').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  loadReviews();
+}
+function pickSort(s) {
+  curSort = s;
+  document.getElementById('sortLatest').classList.toggle('on', s === 'latest');
+  document.getElementById('sortRating').classList.toggle('on', s === 'rating');
+  loadReviews();
+}
+function doSearch() {
+  curKeyword = document.getElementById('kwInput').value.trim();
+  loadReviews();
+}
+
+/* ---------- 写评价弹窗 ---------- */
+async function openForm() {
+  const u = getCurrentUser();
+  if (!u || !u.id) { toast('请先登录后再发表评价', 'error'); return; }
+  // 商品下拉
+  const sel = document.getElementById('fProduct');
+  if (!goodsList.length) {
+    try {
+      goodsList = await getJson('/api/goods') || [];
+      sel.innerHTML = '<option value="" disabled selected>— 请选择要评价的商品 —</option>' +
+        goodsList.map(g => `<option value="${g.id}">${esc(g.icon || '')} ${esc(g.name)}（${money(g.price)}）</option>`).join('');
+    } catch (e) { toast(e.message, 'error'); return; }
+  }
+  sel.value = '';
+  document.getElementById('fContent').value = '';
+  formRating = 5;
+  renderStarPick();
+  document.getElementById('modalMask').classList.add('show');
+}
+function closeForm() { document.getElementById('modalMask').classList.remove('show'); }
+function renderStarPick() {
+  document.getElementById('starPick').innerHTML =
+    [1, 2, 3, 4, 5].map(n =>
+      `<button type="button" class="star-btn ${n <= formRating ? 'lit' : ''}" onclick="setRating(${n})">★</button>`
+    ).join('') + `<span class="star-num">${formRating} 星</span>`;
+}
+function setRating(n) { formRating = n; renderStarPick(); }
+
+async function submitReview() {
+  const u = getCurrentUser();
+  if (!u || !u.id) { toast('请先登录', 'error'); return; }
+  const productId = document.getElementById('fProduct').value;
+  const content = document.getElementById('fContent').value.trim();
+  if (!productId) { toast('请选择要评价的商品', 'error'); return; }
+  if (content.length < 5) { toast('评价内容至少 5 个字', 'error'); return; }
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true; btn.textContent = '提交中…';
+  try {
+    await postJson('/api/community/reviews', { userId: u.id, productId: Number(productId), rating: formRating, content });
+    closeForm();
+    toast('评价发表成功，感谢分享 ✦');
+    loadOverview(); loadRanks(); loadReviews();
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '发表评价';
+  }
+}
+
+/* ---------- 初始化 ---------- */
+const user = requireLogin();
+renderNav('community');
+initStarfield();
+loadOverview();
+loadRanks();
+loadReviews();
+</script>
+</body>
+</html>

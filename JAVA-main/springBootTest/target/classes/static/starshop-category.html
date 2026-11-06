@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商品分类 · 星河商城</title>
+<link rel="stylesheet" href="starshop-theme.css">
+</head>
+<body>
+<div class="sky"></div><div class="galaxy"></div>
+<div class="nebula"></div><div class="nebula b"></div>
+<canvas id="starfield"></canvas><div class="moon"></div>
+
+<div id="topnav"></div>
+
+<div class="app">
+  <main class="container">
+    <div class="section-title">
+      <h2>商品分类</h2>
+      <span class="tag">点击右侧子分类浏览商品</span>
+    </div>
+
+    <div class="cat-layout">
+      <aside class="cat-side">
+        <div class="side-title">全部分类</div>
+        <div id="catSide"></div>
+      </aside>
+      <section>
+        <div class="cat-sub" id="catSub"></div>
+        <div class="goods-grid" id="goodsGrid"></div>
+      </section>
+    </div>
+  </main>
+  <footer class="footer">星河商城 · 让每一颗星都值得拥有 ✦</footer>
+</div>
+
+<script src="starshop-common.js"></script>
+<script>
+let CAT = [];           // 全部分类树
+let curTop = null;       // 当前顶级分类 id
+let curSub = null;       // 当前子分类 id（null = 该顶级下全部）
+
+function starCount(topId) {
+  const top = CAT.find(c => c.id === topId);
+  if (!top) return 0;
+  let n = 0;
+  const walk = arr => arr.forEach(c => { n++; if (c.children) walk(c.children); });
+  walk(top.children || []);
+  return n;
+}
+
+function renderSide() {
+  const el = document.getElementById('catSide');
+  el.innerHTML = CAT.map(t => `
+    <div class="cat-side-item ${t.id === curTop ? 'active' : ''}" onclick="pickTop(${t.id})">
+      <span>${t.name}</span><span class="cnt">${starCount(t.id)}</span>
+    </div>`).join('');
+}
+
+function renderSub() {
+  const top = CAT.find(c => c.id === curTop);
+  const el = document.getElementById('catSub');
+  if (!top || !top.children || !top.children.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="chip ${curSub === null ? 'active' : ''}" onclick="pickSub(null)">全部</div>` +
+    top.children.map(s => `<div class="chip ${s.id === curSub ? 'active' : ''}" onclick="pickSub(${s.id})">${s.name}</div>`).join('');
+}
+
+async function loadGoods() {
+  const grid = document.getElementById('goodsGrid');
+  grid.innerHTML = '<div class="empty">加载中…</div>';
+  try {
+    // 选了子分类用子分类 id；只选顶级则用顶级 id（后端会分级展开全部子类）
+    const categoryId = curSub !== null ? curSub : curTop;
+    const list = await getJson('/api/goods', { categoryId });
+    if (!list || !list.length) { grid.innerHTML = '<div class="empty"><div class="em">🛰️</div>该分类暂无商品</div>'; return; }
+    grid.innerHTML = list.map(p => `
+      <div class="goods-card" onclick="goDetail(${p.id})">
+        ${p.isSeckill ? '<span class="badge-seckill">秒杀</span>' : (p.isHot ? '<span class="badge-hot">热销</span>' : '')}
+        <div class="goods-icon">${p.icon || '🛍️'}</div>
+        <div class="goods-name">${p.name}</div>
+        <div class="goods-cat">${p.categoryName || ''}</div>
+        <div class="goods-price"><span class="cur">¥</span>${p.price}${p.originalPrice ? `<span class="goods-origin">¥${p.originalPrice}</span>` : ''}</div>
+      </div>`).join('');
+  } catch (e) { grid.innerHTML = '<div class="empty">加载失败：' + e.message + '</div>'; }
+}
+
+function pickTop(id) { curTop = id; curSub = null; renderSide(); renderSub(); loadGoods(); }
+function pickSub(id) { curSub = id; renderSub(); loadGoods(); }
+function goDetail(id) { location.href = 'starshop-detail.html?id=' + id; }
+
+(async function init() {
+  initStarfield();
+  renderNav('category');
+  try {
+    CAT = await getJson('/api/categories');
+    curTop = CAT.length ? CAT[0].id : null;
+    renderSide(); renderSub();
+    await loadGoods();
+  } catch (e) { document.getElementById('goodsGrid').innerHTML = '<div class="empty">分类加载失败：' + e.message + '</div>'; }
+})();
+</script>
+</body>
+</html>
