@@ -1,29 +1,50 @@
 @echo off
-chcp 936 >nul
+chcp 65001 >nul
 setlocal enabledelayedexpansion
 rem ============================================================
-rem  ĞÇ¹ºÉÌ³Ç starshop - Æô¶¯½Å±¾
-rem  ÓÃ·¨£ºË«»÷ÔËĞĞ£¬»òÔÚ cmd ÖĞÖ´ĞĞ start.bat
-rem  ËµÃ÷£º±¾´°¿Ú»á³ÖĞøÔËĞĞºó¶Ë·şÎñ£¬¹Ø±Õ´°¿Ú¼´Í£Ö¹·şÎñ
+rem  æ˜Ÿè´­å•†åŸ starshop - å¯åŠ¨è„šæœ¬
+rem  ç”¨æ³•ï¼šåŒå‡»è¿è¡Œï¼Œæˆ–åœ¨ cmd é‡Œæ‰§è¡Œ start.bat
+rem  è¯´æ˜ï¼šä¼šå¯åŠ¨ä¸€ä¸ªåå°æœåŠ¡ï¼Œå…³é—­çª—å£å³åœæ­¢æœåŠ¡
 rem ============================================================
 
-rem ÇĞµ½½Å±¾ËùÔÚÄ¿Â¼£¨ÏîÄ¿¸ùÄ¿Â¼£©£¬Ö®ºóÈ«²¿Ê¹ÓÃÏà¶ÔÂ·¾¶
+rem åˆ‡åˆ°è„šæœ¬æ‰€åœ¨ç›®å½•ï¼ˆå³é¡¹ç›®æ ¹ç›®å½•ï¼‰ï¼Œä¹‹åå…¨éƒ¨ä½¿ç”¨ç›¸å¯¹è·¯å¾„
 cd /d %~dp0
 
-rem ---- 0. Çåµô»á¸²¸Ç Spring Boot ¶Ë¿ÚÅäÖÃµÄ»·¾³±äÁ¿£¨¹Ø¼ü£¬ÎğÉ¾£©----
+rem ---- 0. æ¸…é™¤å¯èƒ½è¦†ç›– Spring Boot ç«¯å£é…ç½®çš„ç¯å¢ƒå˜é‡ ----
 set "SERVER__PORT="
 set "SERVER__HOST="
 
-rem ---- 1. ¼ì²é 8081 ÊÇ·ñÒÑÔÚÔËĞĞ ----
+rem ---- 0.5 è‡ªåŠ¨å®šä½ JDK 17ï¼ˆä¼˜å…ˆç”¨æˆ‘ä»¬å®‰è£…çš„ JDK 17ï¼‰----
+set "JAVA_HOME="
+if exist "D:\Java\jdk-17.0.20.1+1\bin\java.exe" (
+    set "JAVA_HOME=D:\Java\jdk-17.0.20.1+1"
+) else (
+    where java.exe >nul 2>nul
+    if not errorlevel 1 set "JAVA_HOME="
+)
+if defined JAVA_HOME (
+    set "PATH=%JAVA_HOME%\bin;%PATH%"
+    echo [ä¿¡æ¯] ä½¿ç”¨ JDK: %JAVA_HOME%
+) else (
+    echo [è­¦å‘Š] æœªæ‰¾åˆ° JDK 17ï¼Œå°†ä½¿ç”¨ç³»ç»Ÿé»˜è®¤ javaï¼ˆè‹¥æŠ¥é”™è¯·å®‰è£… JDK 17ï¼‰
+)
+where java.exe >nul 2>nul
+if errorlevel 1 (
+    echo [é”™è¯¯] æœªæ‰¾åˆ° javaï¼Œè¯·å…ˆå®‰è£… JDK 17 æˆ–é…ç½® JAVA_HOME
+    pause
+    exit /b 1
+)
+
+rem ---- 1. æ£€æŸ¥ 8081 æ˜¯å¦å·²è¢«å ç”¨ ----
 netstat -ano | findstr ":8081 " | findstr "LISTENING" >nul 2>nul
 if not errorlevel 1 (
-    echo [ÌáÊ¾] 8081 ¶Ë¿ÚÒÑÓĞ·şÎñÔÚÔËĞĞ£¬ÎŞĞèÖØ¸´Æô¶¯
-    echo        ÈçĞèÖØÆôÇëÏÈÔËĞĞ stop.bat
+    echo [æç¤º] 8081 ç«¯å£å·²æœ‰æœåŠ¡åœ¨è¿è¡Œï¼Œæ— éœ€é‡å¤å¯åŠ¨
+    echo        å¦‚éœ€é‡å¯è¯·å…ˆè¿è¡Œ stop.bat
     pause
     exit /b 0
 )
 
-rem ---- 2. ¶¨Î» Maven£¨ÓÅÏÈ PATH£¬Æä´Î IDEA ×Ô´ø£©----
+rem ---- 2. å®šä½ Mavenï¼ˆä¼˜å…ˆ PATHï¼Œå…¶æ¬¡ IDEA è‡ªå¸¦ï¼‰----
 set "MVN_CMD="
 where mvn.cmd >nul 2>nul
 if not errorlevel 1 set "MVN_CMD=mvn.cmd"
@@ -33,52 +54,56 @@ if not defined MVN_CMD (
     )
 )
 if not defined MVN_CMD (
-    echo [´íÎó] Î´ÕÒµ½ Maven¡£Çë°²×° Maven »ò IntelliJ IDEA ºóÖØÊÔ
+    echo [é”™è¯¯] æœªæ‰¾åˆ° Mavenï¼Œè¯·å®‰è£… Maven æˆ– IntelliJ IDEA
     pause
     exit /b 1
 )
-echo [ĞÅÏ¢] Ê¹ÓÃ Maven: %MVN_CMD%
+echo [ä¿¡æ¯] ä½¿ç”¨ Maven: %MVN_CMD%
 
-rem ---- 3. ¼ì²é²¢³õÊ¼»¯Êı¾İ¿â£¨½öµ± starshop ¿â²»´æÔÚÊ±Ö´ĞĞ init.sql£©----
-set "MYSQL_EXE=C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe"
-if exist "%MYSQL_EXE%" (
+rem ---- 3. æ£€æŸ¥å¹¶åˆå§‹åŒ–æ•°æ®åº“ï¼ˆè‹¥ starshop åº“ä¸å­˜åœ¨æ—¶æ‰§è¡Œ init.sqlï¼‰----
+set "MYSQL_EXE="
+if exist "C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe" set "MYSQL_EXE=C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe"
+if not defined MYSQL_EXE (
+    if exist "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" set "MYSQL_EXE=C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe"
+)
+if defined MYSQL_EXE (
     "%MYSQL_EXE%" --default-character-set=utf8mb4 -u root -p123456 -e "USE starshop" >nul 2>nul
     if errorlevel 1 (
-        echo [³õÊ¼»¯] Î´¼ì²âµ½ starshop Êı¾İ¿â£¬¿ªÊ¼Ö´ĞĞ sql\init.sql ...
+        echo [åˆå§‹åŒ–] æœªæ£€æµ‹åˆ° starshop æ•°æ®åº“ï¼Œå¼€å§‹æ‰§è¡Œ sql\init.sql ...
         "%MYSQL_EXE%" --default-character-set=utf8mb4 -u root -p123456 < sql\init.sql
         if errorlevel 1 (
-            echo [´íÎó] Êı¾İ¿â³õÊ¼»¯Ê§°Ü£¬ÇëÈ·ÈÏ MySQL ·şÎñÒÑÆô¶¯¡¢ÕËºÅ root ÃÜÂë 123456
+            echo [é”™è¯¯] æ•°æ®åº“åˆå§‹åŒ–å¤±è´¥ï¼Œè¯·ç¡®è®¤ MySQL æœåŠ¡å·²å¯åŠ¨ã€è´¦å· root å¯†ç  123456
             pause
             exit /b 1
         )
-        echo [³õÊ¼»¯] Êı¾İ¿â´´½¨Íê³É
+        echo [åˆå§‹åŒ–] æ•°æ®åº“åˆ›å»ºå®Œæˆ
     ) else (
-        echo [ĞÅÏ¢] Êı¾İ¿â starshop ÒÑ´æÔÚ£¬Ìø¹ı³õÊ¼»¯
+        echo [ä¿¡æ¯] æ•°æ®åº“ starshop å·²å­˜åœ¨ï¼Œè·³è¿‡åˆå§‹åŒ–
     )
 ) else (
-    echo [¾¯¸æ] Î´ÕÒµ½ mysql ¿Í»§¶Ë£¬Ìø¹ıÊı¾İ¿â¼ì²é£¨Çë×ÔĞĞÈ·ÈÏ starshop ¿â´æÔÚ£©
+    echo [è­¦å‘Š] æœªæ‰¾åˆ° mysql å®¢æˆ·ç«¯ï¼Œè·³è¿‡æ•°æ®åº“æ£€æŸ¥ï¼ˆè¯·ç¡®ä¿ starshop åº“å·²å­˜åœ¨ï¼‰
 )
 
-rem ---- 4. ±àÒë´ò°ü£¨Ã¿´Î¿ª»ú target Ä¿Â¼»á±»Çå¿Õ£¬±ØĞëÖØĞÂ±àÒë£©----
-echo [±àÒë] ÕıÔÚ±àÒë´ò°ü£¬Ê×´ÎÔËĞĞĞèÏÂÔØÒÀÀµ£¬ÇëÄÍĞÄµÈ´ı...
+rem ---- 4. ç¼–è¯‘æ‰“åŒ…ï¼ˆæ¯æ¬¡å¯åŠ¨éƒ½ä¼šé‡æ–°ç¼–è¯‘ï¼‰----
+echo [ç¼–è¯‘] æ­£åœ¨ç¼–è¯‘æ‰“åŒ…ï¼Œé¦–æ¬¡è¾ƒæ…¢è¯·è€å¿ƒç­‰å¾…...
 call "%MVN_CMD%" -s maven-settings.xml -DskipTests package
 if errorlevel 1 (
-    echo [´íÎó] ±àÒëÊ§°Ü£¬Çë¼ì²éÉÏ·½ Maven Êä³ö
+    echo [é”™è¯¯] ç¼–è¯‘å¤±è´¥ï¼Œè¯·æŸ¥çœ‹ä¸Šæ–¹ Maven æŠ¥é”™
     pause
     exit /b 1
 )
 
-rem ---- 5. ÕÒµ½´òºÃµÄ jar ²¢Æô¶¯ ----
+rem ---- 5. æ‰¾åˆ°æ‰“å¥½çš„ jar åŒ…å¹¶å¯åŠ¨ ----
 set "JAR_FILE="
 for %%f in (target\*.jar) do set "JAR_FILE=%%f"
 if not defined JAR_FILE (
-    echo [´íÎó] target Ä¿Â¼ÏÂÎ´ÕÒµ½ jar °ü
+    echo [é”™è¯¯] target ç›®å½•ä¸­æœªæ‰¾åˆ° jar åŒ…
     pause
     exit /b 1
 )
-echo [Æô¶¯] %JAR_FILE%
-echo [ÌáÊ¾] µÇÂ¼Ò³µØÖ·: http://localhost:8081/starshop-login.html
-echo [ÌáÊ¾] ²âÊÔÕËºÅ: test@starshop.com / 123456
-echo [ÌáÊ¾] ±¾´°¿Ú³ÖĞøÔËĞĞ·şÎñ£¬¹Ø±Õ´°¿Ú¼´Í£Ö¹£»Ò²¿ÉÓÃ stop.bat Í£Ö¹
+echo [å¯åŠ¨] %JAR_FILE%
+echo [æç¤º] ç™»å½•é¡µåœ°å€: http://localhost:8081/starshop-login.html
+echo [æç¤º] æµ‹è¯•è´¦å·: test@starshop.com / 123456
+echo [æç¤º] æœåŠ¡åœ¨å‰å°è¿è¡Œï¼Œå…³é—­æœ¬çª—å£å³åœæ­¢æœåŠ¡ï¼Œä¹Ÿå¯è¿è¡Œ stop.bat åœæ­¢
 java -jar "%JAR_FILE%"
 pause
